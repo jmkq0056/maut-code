@@ -20,7 +20,7 @@ jobs:
         run: |
           cd "${GITHUB_WORKSPACE}/../VSCode-darwin-arm64"
           hdiutil create -volname "Maut code" -srcfolder "Maut code.app" -ov -format UDZO "${GITHUB_WORKSPACE}/Maut-code-arm64.dmg"
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: Maut-code-arm64.dmg
 
@@ -36,7 +36,7 @@ jobs:
         run: |
           cd "${GITHUB_WORKSPACE}/../VSCode-darwin-x64"
           hdiutil create -volname "Maut code" -srcfolder "Maut code.app" -ov -format UDZO "${GITHUB_WORKSPACE}/Maut-code-x64.dmg"
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: Maut-code-x64.dmg
 
@@ -52,6 +52,6 @@ jobs:
         shell: pwsh
         run: |
           Compress-Archive -Path "..\VSCode-win32-x64\*" -DestinationPath "Maut-code-win-x64.zip"
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: Maut-code-win-x64.zip
