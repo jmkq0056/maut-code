@@ -1,0 +1,60 @@
+{
+	"name": "maut-cli-add",
+	"displayName": "Maut Add to CLI",
+	"description": "Right-click (or inline icon) → add file(s) to the active Maut Claude terminal as @paths.",
+	"version": "1.0.0",
+	"publisher": "maut",
+	"license": "MIT",
+	"engines": { "vscode": "^1.121.0" },
+	"main": "./out/extension",
+	"activationEvents": [ "onStartupFinished" ],
+	"capabilities": {
+		"untrustedWorkspaces": { "supported": true },
+		"virtualWorkspaces": false
+	},
+	"devDependencies": { "@types/node": "22.x" },
+	"contributes": {
+		"commands": [
+			{
+				"command": "maut.cli.add",
+				"title": "Add to Maut CLI",
+				"category": "Maut",
+				"icon": "$(mention)"
+			},
+			{
+				"command": "maut.cli.addSelection",
+				"title": "Add Selection to Maut CLI",
+				"category": "Maut",
+				"icon": "$(mention)"
+			}
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "maut.cli.add",
+					"group": "navigation@5"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "maut.cli.add",
+					"when": "view == workbench.explorer.fileView",
+					"group": "inline@10"
+				}
+			],
+			"editor/context": [
+				{
+					"command": "maut.cli.addSelection",
+					"when": "editorHasSelection",
+					"group": "1_modification@10"
+				}
+			],
+			"editor/title/context": [
+				{
+					"command": "maut.cli.add",
+					"group": "1_open@5"
+				}
+			]
+		}
+	}
+}

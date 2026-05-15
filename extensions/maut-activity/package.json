@@ -1,0 +1,124 @@
+{
+	"name": "maut-activity",
+	"displayName": "Maut Activity",
+	"description": "Live view of every action Claude Code is taking in this session, with per-action diff and undo.",
+	"version": "1.0.0",
+	"publisher": "maut",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.121.0"
+	},
+	"main": "./out/extension",
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"capabilities": {
+		"untrustedWorkspaces": { "supported": true },
+		"virtualWorkspaces": false
+	},
+	"devDependencies": {
+		"@types/node": "22.x"
+	},
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "maut",
+					"title": "Maut",
+					"icon": "$(eye)"
+				}
+			]
+		},
+		"views": {
+			"maut": [
+				{
+					"id": "maut.activity",
+					"name": "Activity",
+					"icon": "$(history)",
+					"contextualTitle": "Maut Activity"
+				}
+			]
+		},
+		"viewsWelcome": [
+			{
+				"view": "maut.activity",
+				"contents": "Watching Claude Code session.\n\nStart `clsp` in a terminal and edit a file. Every Write / Edit / MultiEdit action will appear here with a diff link and an Undo button.\n\nNo activity yet."
+			}
+		],
+		"commands": [
+			{
+				"command": "maut.activity.refresh",
+				"title": "Refresh",
+				"category": "Maut Activity",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "maut.activity.openFileDiff",
+				"title": "Diff Session-Start vs Current",
+				"category": "Maut Activity",
+				"icon": "$(diff)"
+			},
+			{
+				"command": "maut.activity.openActionDiff",
+				"title": "Diff Pre-Edit vs Current",
+				"category": "Maut Activity",
+				"icon": "$(diff)"
+			},
+			{
+				"command": "maut.activity.undoFile",
+				"title": "Undo All Claude Edits to This File",
+				"category": "Maut Activity",
+				"icon": "$(discard)"
+			},
+			{
+				"command": "maut.activity.undoAction",
+				"title": "Undo This Edit",
+				"category": "Maut Activity",
+				"icon": "$(discard)"
+			},
+			{
+				"command": "maut.activity.openFile",
+				"title": "Open File",
+				"category": "Maut Activity",
+				"icon": "$(go-to-file)"
+			},
+			{
+				"command": "maut.activity.redoFile",
+				"title": "Redo (Restore Post-Claude State)",
+				"category": "Maut Activity",
+				"icon": "$(redo)"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "maut.activity.refresh",
+					"when": "view == maut.activity",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "maut.activity.openFile",
+					"when": "view == maut.activity && (viewItem == fileGroup || viewItem == fileGroupWithRedo)",
+					"group": "inline@1"
+				},
+				{
+					"command": "maut.activity.undoFile",
+					"when": "view == maut.activity && viewItem == fileGroup",
+					"group": "inline@2"
+				},
+				{
+					"command": "maut.activity.redoFile",
+					"when": "view == maut.activity && viewItem == fileGroupWithRedo",
+					"group": "inline@2"
+				},
+				{
+					"command": "maut.activity.undoAction",
+					"when": "view == maut.activity && viewItem == revertableAction",
+					"group": "inline@1"
+				}
+			]
+		}
+	}
+}

@@ -1,0 +1,45 @@
+{
+	"name": "maut-file-tools",
+	"displayName": "Maut File Tools",
+	"description": "PDF page picker, doc → text/json converters, docx/pptx → pdf — all routed to the Maut Claude CLI as @-mentions.",
+	"version": "1.0.0",
+	"publisher": "maut",
+	"license": "MIT",
+	"engines": { "vscode": "^1.121.0" },
+	"main": "./out/extension",
+	"activationEvents": [ "onStartupFinished" ],
+	"capabilities": {
+		"untrustedWorkspaces": { "supported": true },
+		"virtualWorkspaces": false
+	},
+	"devDependencies": { "@types/node": "22.x" },
+	"dependencies": {
+		"mammoth": "^1.8.0",
+		"pdf-lib": "^1.17.1",
+		"pdfjs-dist": "^4.10.38",
+		"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+	},
+	"contributes": {
+		"commands": [
+			{ "command": "maut.fileTools.pickPdfPages", "title": "Add Selected Pages to Maut CLI", "category": "Maut", "icon": "$(file-pdf)" },
+			{ "command": "maut.fileTools.toTxt", "title": "Add to Maut CLI as TXT", "category": "Maut" },
+			{ "command": "maut.fileTools.toJson", "title": "Add to Maut CLI as JSON", "category": "Maut" },
+			{ "command": "maut.fileTools.docxToPdf", "title": "Convert DOCX → PDF and add to Maut CLI", "category": "Maut" },
+			{ "command": "maut.fileTools.pptxToPdf", "title": "Convert PPTX → PDF and add to Maut CLI", "category": "Maut" }
+		],
+		"menus": {
+			"explorer/context": [
+				{ "command": "maut.fileTools.pickPdfPages", "when": "!explorerResourceIsFolder && resourceExtname == .pdf", "group": "navigation@91" },
+				{ "command": "maut.fileTools.toTxt", "when": "!explorerResourceIsFolder && resourceExtname =~ /\\.(pdf|docx?|xlsx?|csv|tsv|html?)$/", "group": "navigation@92" },
+				{ "command": "maut.fileTools.toJson", "when": "!explorerResourceIsFolder && resourceExtname =~ /\\.(xlsx?|csv|tsv)$/", "group": "navigation@93" },
+				{ "command": "maut.fileTools.docxToPdf", "when": "!explorerResourceIsFolder && resourceExtname =~ /\\.docx?$/", "group": "navigation@94" },
+				{ "command": "maut.fileTools.pptxToPdf", "when": "!explorerResourceIsFolder && resourceExtname =~ /\\.pptx?$/", "group": "navigation@94" }
+			],
+			"editor/title/context": [
+				{ "command": "maut.fileTools.pickPdfPages", "when": "resourceExtname == .pdf", "group": "1_open@2" },
+				{ "command": "maut.fileTools.toTxt", "when": "resourceExtname =~ /\\.(pdf|docx?|xlsx?|csv|tsv|html?)$/", "group": "1_open@3" },
+				{ "command": "maut.fileTools.toJson", "when": "resourceExtname =~ /\\.(xlsx?|csv|tsv)$/", "group": "1_open@4" }
+			]
+		}
+	}
+}

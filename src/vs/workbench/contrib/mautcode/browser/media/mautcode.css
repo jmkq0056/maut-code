@@ -1,0 +1,31 @@
+/*---------------------------------------------------------------------------------------------
+ *  Maut code styles.
+ *--------------------------------------------------------------------------------------------*/
+
+/* Inline @-add button per row in the file explorer. */
+.monaco-list-row .maut-explorer-inline-add {
+	display: none !important;
+	margin-left: auto;
+	padding: 0 6px;
+	font-size: 13px;
+	cursor: pointer;
+	color: var(--vscode-icon-foreground);
+	opacity: 0.7;
+	border-radius: 3px;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+}
+
+.monaco-list-row:hover .maut-explorer-inline-add,
+.monaco-list-row.focused .maut-explorer-inline-add,
+.monaco-list-row.selected .maut-explorer-inline-add {
+	display: inline-flex !important;
+}
+
+.monaco-list-row .maut-explorer-inline-add:hover {
+	opacity: 1;
+	background: var(--vscode-toolbar-hoverBackground, rgba(255, 255, 255, 0.1));
+	color: var(--vscode-list-highlightForeground, var(--vscode-textLink-foreground));
+}

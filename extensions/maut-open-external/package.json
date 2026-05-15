@@ -1,0 +1,143 @@
+{
+	"name": "maut-open-external",
+	"displayName": "Maut Open External",
+	"description": "Right-click context actions for opening files in the right native app (Firefox / Word / Excel / PowerPoint) plus an Execute Script action for shell files.",
+	"version": "1.0.0",
+	"publisher": "maut",
+	"license": "MIT",
+	"engines": { "vscode": "^1.121.0" },
+	"main": "./out/extension",
+	"activationEvents": [ "onStartupFinished" ],
+	"capabilities": {
+		"untrustedWorkspaces": { "supported": true },
+		"virtualWorkspaces": false
+	},
+	"devDependencies": { "@types/node": "22.x" },
+	"contributes": {
+		"commands": [
+			{
+				"command": "maut.openIn.firefox",
+				"title": "Open in Firefox",
+				"category": "Maut"
+			},
+			{
+				"command": "maut.openIn.word",
+				"title": "Show in Word",
+				"category": "Maut"
+			},
+			{
+				"command": "maut.openIn.excel",
+				"title": "Show in Excel",
+				"category": "Maut"
+			},
+			{
+				"command": "maut.openIn.powerpoint",
+				"title": "Show in PowerPoint",
+				"category": "Maut"
+			},
+			{
+				"command": "maut.openIn.defaultApp",
+				"title": "Open With System Default App",
+				"category": "Maut"
+			},
+			{
+				"command": "maut.run.script",
+				"title": "Execute Script in Terminal",
+				"category": "Maut"
+			},
+			{
+				"command": "maut.tex.compileAndOpenFirefox",
+				"title": "Compile (twice) and Open PDF in Firefox",
+				"category": "Maut"
+			}
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "maut.openIn.firefox",
+					"when": "!explorerResourceIsFolder && resourceExtname =~ /\\.(html|htm|pdf|svg)$/",
+					"group": "navigation@90"
+				},
+				{
+					"command": "maut.openIn.word",
+					"when": "!explorerResourceIsFolder && resourceExtname =~ /\\.(docx?|odt|rtf)$/",
+					"group": "navigation@90"
+				},
+				{
+					"command": "maut.openIn.excel",
+					"when": "!explorerResourceIsFolder && resourceExtname =~ /\\.(xlsx?|ods|csv|tsv)$/",
+					"group": "navigation@90"
+				},
+				{
+					"command": "maut.openIn.powerpoint",
+					"when": "!explorerResourceIsFolder && resourceExtname =~ /\\.(pptx?|odp|key)$/",
+					"group": "navigation@90"
+				},
+				{
+					"command": "maut.run.script",
+					"when": "!explorerResourceIsFolder && resourceExtname =~ /\\.(sh|bash|zsh|command)$/",
+					"group": "navigation@90"
+				},
+				{
+					"command": "maut.tex.compileAndOpenFirefox",
+					"when": "!explorerResourceIsFolder && resourceExtname == .tex",
+					"group": "navigation@90"
+				},
+				{
+					"command": "maut.openIn.defaultApp",
+					"when": "!explorerResourceIsFolder",
+					"group": "navigation@99"
+				}
+			],
+			"editor/title/context": [
+				{
+					"command": "maut.openIn.firefox",
+					"when": "resourceExtname =~ /\\.(html|htm|pdf|svg)$/",
+					"group": "1_open@1"
+				},
+				{
+					"command": "maut.openIn.word",
+					"when": "resourceExtname =~ /\\.(docx?|odt|rtf)$/",
+					"group": "1_open@1"
+				},
+				{
+					"command": "maut.openIn.excel",
+					"when": "resourceExtname =~ /\\.(xlsx?|ods|csv|tsv)$/",
+					"group": "1_open@1"
+				},
+				{
+					"command": "maut.openIn.powerpoint",
+					"when": "resourceExtname =~ /\\.(pptx?|odp|key)$/",
+					"group": "1_open@1"
+				},
+				{
+					"command": "maut.run.script",
+					"when": "resourceExtname =~ /\\.(sh|bash|zsh|command)$/",
+					"group": "1_open@1"
+				},
+				{
+					"command": "maut.tex.compileAndOpenFirefox",
+					"when": "resourceExtname == .tex",
+					"group": "1_open@1"
+				}
+			],
+			"editor/title": [
+				{
+					"command": "maut.openIn.firefox",
+					"when": "resourceExtname =~ /\\.(html|htm|pdf|svg)$/",
+					"group": "navigation@1"
+				},
+				{
+					"command": "maut.run.script",
+					"when": "resourceExtname =~ /\\.(sh|bash|zsh|command)$/",
+					"group": "navigation@1"
+				},
+				{
+					"command": "maut.tex.compileAndOpenFirefox",
+					"when": "resourceExtname == .tex",
+					"group": "navigation@1"
+				}
+			]
+		}
+	}
+}

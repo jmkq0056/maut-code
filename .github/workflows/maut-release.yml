@@ -1,0 +1,57 @@
+name: Maut Release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mac-arm64:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22.22.1 }
+      - run: npm install
+      - run: npm run gulp vscode-darwin-arm64
+      - name: Build DMG
+        run: |
+          cd "${GITHUB_WORKSPACE}/../VSCode-darwin-arm64"
+          hdiutil create -volname "Maut code" -srcfolder "Maut code.app" -ov -format UDZO "${GITHUB_WORKSPACE}/Maut-code-arm64.dmg"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: Maut-code-arm64.dmg
+
+  mac-x64:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22.22.1 }
+      - run: npm install
+      - run: npm run gulp vscode-darwin-x64
+      - name: Build DMG
+        run: |
+          cd "${GITHUB_WORKSPACE}/../VSCode-darwin-x64"
+          hdiutil create -volname "Maut code" -srcfolder "Maut code.app" -ov -format UDZO "${GITHUB_WORKSPACE}/Maut-code-x64.dmg"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: Maut-code-x64.dmg
+
+  windows-x64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22.22.1 }
+      - run: npm install
+      - run: npm run gulp vscode-win32-x64
+      - name: Zip Windows build
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "..\VSCode-win32-x64\*" -DestinationPath "Maut-code-win-x64.zip"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: Maut-code-win-x64.zip

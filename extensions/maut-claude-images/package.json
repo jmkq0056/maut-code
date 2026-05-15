@@ -1,0 +1,55 @@
+{
+	"name": "maut-claude-images",
+	"displayName": "Maut Claude Images",
+	"description": "Sidebar gallery and terminal link integration for Claude Code image cache",
+	"version": "1.0.0",
+	"publisher": "maut",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.121.0"
+	},
+	"main": "./out/extension",
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": true
+		},
+		"virtualWorkspaces": true
+	},
+	"devDependencies": {
+		"@types/node": "22.x"
+	},
+	"contributes": {
+		"commands": [
+			{
+				"command": "maut.chat.startClaude",
+				"title": "Start clsp Terminal",
+				"category": "Maut",
+				"icon": "$(play)"
+			},
+			{
+				"command": "maut.terminals.switch",
+				"title": "Switch Maut Terminal",
+				"category": "Maut",
+				"icon": "$(list-tree)"
+			}
+		],
+		"menus": {
+			"editor/title": [
+				{
+					"command": "maut.terminals.switch",
+					"group": "navigation@3"
+				}
+			],
+			"view/title": [
+				{
+					"command": "maut.terminals.switch",
+					"when": "view == terminal",
+					"group": "navigation@98"
+				}
+			]
+		}
+	}
+}

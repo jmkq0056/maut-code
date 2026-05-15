@@ -1,0 +1,26 @@
+{
+	"name": "maut-git-commit",
+	"displayName": "Maut Git Commit",
+	"description": "One-click `git add .` + commit + optional push, with branch-aware confirmation.",
+	"version": "1.0.0",
+	"publisher": "maut",
+	"license": "MIT",
+	"engines": { "vscode": "^1.121.0" },
+	"main": "./out/extension",
+	"activationEvents": [ "onStartupFinished" ],
+	"capabilities": {
+		"untrustedWorkspaces": { "supported": true },
+		"virtualWorkspaces": false
+	},
+	"devDependencies": { "@types/node": "22.x" },
+	"contributes": {
+		"commands": [
+			{
+				"command": "maut.git.commitAndPush",
+				"title": "Commit Everything (and optionally push)",
+				"category": "Maut",
+				"icon": "$(git-commit)"
+			}
+		]
+	}
+}

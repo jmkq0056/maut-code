@@ -1,0 +1,377 @@
+{
+  "name": "configuration-editing",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "10.0.0",
+  "publisher": "vscode",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.0.0"
+  },
+  "icon": "images/icon.png",
+  "activationEvents": [
+    "onProfile",
+    "onProfile:github",
+    "onLanguage:json",
+    "onLanguage:jsonc"
+  ],
+  "enabledApiProposals": [
+    "profileContentHandlers"
+  ],
+  "main": "./out/configurationEditingMain",
+  "browser": "./dist/browser/configurationEditingMain",
+  "scripts": {
+    "compile": "gulp compile-extension:configuration-editing",
+    "watch": "gulp watch-extension:configuration-editing",
+    "compile-web": "npm-run-all2 -lp bundle-web typecheck-web",
+    "bundle-web": "node ./esbuild.browser.mts",
+    "typecheck-web": "tsgo --project ./tsconfig.browser.json --noEmit",
+    "watch-web": "npm-run-all2 -lp watch-bundle-web watch-typecheck-web",
+    "watch-bundle-web": "node ./esbuild.browser.mts --watch",
+    "watch-typecheck-web": "tsgo --project ./tsconfig.browser.json --noEmit --watch"
+  },
+  "dependencies": {
+    "@octokit/rest": "^21.1.1",
+    "jsonc-parser": "^3.2.0",
+    "tunnel": "^0.0.6"
+  },
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  },
+  "contributes": {
+    "configurationDefaults": {
+      "chat.commandCenter.enabled": false,
+      "chat.experimental.offerSetup": false,
+      "chat.setupFromDialog": false,
+      "editor.inlineSuggest.enabled": false,
+      "editor.inlineSuggest.suppressSuggestions": true,
+      "editor.suggest.preview": false,
+      "github.copilot.enable": { "*": false },
+      "github.copilot.editor.enableAutoCompletions": false,
+      "github.copilot.nextEditSuggestions.enabled": false,
+      "workbench.commandPalette.experimental.suggestCommands": false,
+      "workbench.startupEditor": "none",
+      "workbench.colorTheme": "Default Dark Modern",
+      "workbench.iconTheme": "vscode-icons-mac",
+      "zenMode.centerLayout": false,
+      "zenMode.hideTabs": false,
+      "zenMode.fullScreen": false,
+      "zenMode.hideActivityBar": true,
+      "zenMode.hideStatusBar": true,
+      "zenMode.silentNotifications": false,
+      "zenMode.restore": false,
+      "terminal.integrated.enableImages": true,
+      "terminal.integrated.gpuAcceleration": "on",
+      "editor.fontFamily": "'JetBrains Mono', 'JetBrainsMono Nerd Font', 'Fira Code', 'SF Mono', Menlo, Monaco, 'Courier New', monospace",
+      "editor.fontLigatures": true,
+      "editor.fontWeight": "400",
+      "editor.fontSize": 13,
+      "editor.lineHeight": 1.5,
+      "terminal.integrated.fontFamily": "'JetBrains Mono', 'JetBrainsMono Nerd Font', 'Fira Code', 'SF Mono', Menlo, Monaco, 'Courier New', monospace",
+      "terminal.integrated.fontSize": 13,
+      "terminal.integrated.lineHeight": 1.1,
+      "terminal.integrated.fontWeight": "400",
+      "terminal.integrated.tabs.title": "${sequence}${separator}${process}",
+      "terminal.integrated.tabs.description": "${task}${separator}${local}${separator}${cwdFolder}",
+      "workbench.hover.delay": 80,
+      "editor.hover.delay": 80,
+      "editor.hover.sticky": true,
+      "workbench.colorCustomizations": {
+        "focusBorder": "#c62a47",
+        "foreground": "#f0f0f8",
+        "descriptionForeground": "#a8a8bb",
+        "errorForeground": "#e8465f",
+        "selection.background": "#c62a4755",
+        "editor.background": "#0c0c14",
+        "editor.foreground": "#f0f0f8",
+        "editor.selectionBackground": "#c62a4744",
+        "editor.lineHighlightBackground": "#1a1a2e",
+        "editorCursor.foreground": "#c62a47",
+        "editorWhitespace.foreground": "#4a4a6a",
+        "editorIndentGuide.background1": "#1a1a2e",
+        "editorIndentGuide.activeBackground1": "#c62a4766",
+        "editorLineNumber.foreground": "#4a4a6a",
+        "editorLineNumber.activeForeground": "#e8465f",
+        "editorBracketMatch.background": "#c62a4733",
+        "editorBracketMatch.border": "#c62a47",
+        "editorGroupHeader.tabsBackground": "#0c0c14",
+        "editorGroup.border": "#1a1a2e",
+        "tab.activeBackground": "#1a1a2e",
+        "tab.inactiveBackground": "#0c0c14",
+        "tab.activeForeground": "#f0f0f8",
+        "tab.inactiveForeground": "#6868a0",
+        "tab.activeBorderTop": "#c62a47",
+        "tab.border": "#0c0c14",
+        "tab.hoverBackground": "#101020",
+        "titleBar.activeBackground": "#0c0c14",
+        "titleBar.activeForeground": "#f0f0f8",
+        "titleBar.inactiveBackground": "#0c0c14",
+        "titleBar.inactiveForeground": "#6868a0",
+        "titleBar.border": "#1a1a2e",
+        "activityBar.background": "#0c0c14",
+        "activityBar.foreground": "#f0f0f8",
+        "activityBar.inactiveForeground": "#6868a0",
+        "activityBar.activeBorder": "#c62a47",
+        "activityBar.activeBackground": "#1a1a2e",
+        "activityBar.border": "#0c0c14",
+        "activityBarBadge.background": "#c62a47",
+        "activityBarBadge.foreground": "#f0f0f8",
+        "sideBar.background": "#0c0c14",
+        "sideBar.foreground": "#a8a8bb",
+        "sideBar.border": "#0c0c14",
+        "sideBarSectionHeader.background": "#0c0c14",
+        "sideBarSectionHeader.foreground": "#6868a0",
+        "sideBarTitle.foreground": "#f0f0f8",
+        "panel.background": "#0c0c14",
+        "panel.border": "#1a1a2e",
+        "panelTitle.activeForeground": "#f0f0f8",
+        "panelTitle.inactiveForeground": "#6868a0",
+        "panelTitle.activeBorder": "#c62a47",
+        "statusBar.background": "#0c0c14",
+        "statusBar.foreground": "#a8a8bb",
+        "statusBar.border": "#1a1a2e",
+        "statusBar.noFolderBackground": "#0c0c14",
+        "statusBar.debuggingBackground": "#c62a47",
+        "statusBarItem.remoteBackground": "#c62a47",
+        "statusBarItem.remoteForeground": "#f0f0f8",
+        "statusBarItem.hoverBackground": "#1a1a2e",
+        "statusBarItem.prominentBackground": "#c62a47",
+        "terminal.background": "#0c0c14",
+        "terminal.foreground": "#f0f0f8",
+        "terminalCursor.background": "#0c0c14",
+        "terminalCursor.foreground": "#c62a47",
+        "terminal.ansiRed": "#c62a47",
+        "terminal.ansiBrightRed": "#e8465f",
+        "terminal.ansiBlue": "#6868a0",
+        "terminal.ansiBrightBlue": "#a8a8bb",
+        "terminal.ansiBlack": "#0c0c14",
+        "terminal.ansiBrightBlack": "#1a1a2e",
+        "terminal.ansiWhite": "#a8a8bb",
+        "terminal.ansiBrightWhite": "#f0f0f8",
+        "button.background": "#c62a47",
+        "button.foreground": "#f0f0f8",
+        "button.hoverBackground": "#e8465f",
+        "button.secondaryBackground": "#1a1a2e",
+        "button.secondaryForeground": "#a8a8bb",
+        "button.secondaryHoverBackground": "#101020",
+        "input.background": "#101020",
+        "input.foreground": "#f0f0f8",
+        "input.border": "#1a1a2e",
+        "input.placeholderForeground": "#4a4a6a",
+        "inputOption.activeBorder": "#c62a47",
+        "inputOption.activeBackground": "#c62a4733",
+        "dropdown.background": "#101020",
+        "dropdown.foreground": "#f0f0f8",
+        "dropdown.border": "#1a1a2e",
+        "list.activeSelectionBackground": "#1a1a2e",
+        "list.activeSelectionForeground": "#e8465f",
+        "list.inactiveSelectionBackground": "#101020",
+        "list.inactiveSelectionForeground": "#f0f0f8",
+        "list.hoverBackground": "#101020",
+        "list.hoverForeground": "#f0f0f8",
+        "list.focusBackground": "#1a1a2e",
+        "list.focusForeground": "#f0f0f8",
+        "list.highlightForeground": "#e8465f",
+        "scrollbarSlider.background": "#1a1a2e88",
+        "scrollbarSlider.hoverBackground": "#c62a4744",
+        "scrollbarSlider.activeBackground": "#c62a4766",
+        "badge.background": "#c62a47",
+        "badge.foreground": "#f0f0f8",
+        "progressBar.background": "#c62a47",
+        "menu.background": "#101020",
+        "menu.foreground": "#f0f0f8",
+        "menu.border": "#1a1a2e",
+        "menu.selectionBackground": "#c62a47",
+        "menu.selectionForeground": "#ffffff",
+        "menu.selectionBorder": "#e8465f",
+        "menu.separatorBackground": "#1a1a2e",
+        "menubar.selectionBackground": "#c62a47",
+        "menubar.selectionForeground": "#ffffff",
+        "menubar.selectionBorder": "#e8465f",
+        "quickInputList.focusBackground": "#c62a47",
+        "quickInputList.focusForeground": "#ffffff",
+        "notifications.background": "#101020",
+        "notifications.foreground": "#f0f0f8",
+        "notifications.border": "#1a1a2e",
+        "notificationLink.foreground": "#e8465f",
+        "notificationCenterHeader.background": "#0c0c14",
+        "notificationCenterHeader.foreground": "#f0f0f8",
+        "quickInput.background": "#101020",
+        "quickInput.foreground": "#f0f0f8",
+        "quickInputTitle.background": "#0c0c14",
+        "pickerGroup.foreground": "#c62a47",
+        "pickerGroup.border": "#1a1a2e",
+        "editorWidget.background": "#101020",
+        "editorWidget.border": "#1a1a2e",
+        "editorSuggestWidget.background": "#101020",
+        "editorSuggestWidget.border": "#1a1a2e",
+        "editorSuggestWidget.foreground": "#f0f0f8",
+        "editorSuggestWidget.highlightForeground": "#e8465f",
+        "editorSuggestWidget.selectedBackground": "#1a1a2e",
+        "editorHoverWidget.background": "#101020",
+        "editorHoverWidget.border": "#1a1a2e",
+        "editorGutter.background": "#0c0c14",
+        "editorGutter.modifiedBackground": "#c62a47",
+        "editorGutter.addedBackground": "#6868a0",
+        "editorGutter.deletedBackground": "#e8465f",
+        "diffEditor.insertedTextBackground": "#6868a022",
+        "diffEditor.removedTextBackground": "#c62a4722",
+        "textLink.foreground": "#e8465f",
+        "textLink.activeForeground": "#c62a47",
+        "breadcrumb.background": "#0c0c14",
+        "breadcrumb.foreground": "#6868a0",
+        "breadcrumb.focusForeground": "#f0f0f8",
+        "breadcrumb.activeSelectionForeground": "#e8465f",
+        "minimap.background": "#0c0c14",
+        "minimap.selectionHighlight": "#c62a4744",
+        "minimapSlider.background": "#1a1a2e88",
+        "minimapSlider.hoverBackground": "#c62a4744"
+      }
+    },
+    "languages": [
+      {
+        "id": "jsonc",
+        "extensions": [
+          ".code-workspace",
+          "language-configuration.json",
+          "icon-theme.json",
+          "color-theme.json"
+        ],
+        "filenames": [
+          "settings.json",
+          "launch.json",
+          "tasks.json",
+          "mcp.json",
+          "keybindings.json",
+          "extensions.json",
+          "argv.json",
+          "profiles.json",
+          "devcontainer.json",
+          ".devcontainer.json"
+        ]
+      },
+      {
+        "id": "json",
+        "extensions": [
+          ".code-profile"
+        ]
+      }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "vscode://defaultsettings/keybindings.json",
+        "url": "vscode://schemas/keybindings"
+      },
+      {
+        "fileMatch": "%APP_SETTINGS_HOME%/keybindings.json",
+        "url": "vscode://schemas/keybindings"
+      },
+      {
+        "fileMatch": "%APP_SETTINGS_HOME%/profiles/*/keybindings.json",
+        "url": "vscode://schemas/keybindings"
+      },
+      {
+        "fileMatch": "vscode://defaultsettings/*.json",
+        "url": "vscode://schemas/settings/default"
+      },
+      {
+        "fileMatch": "%APP_SETTINGS_HOME%/settings.json",
+        "url": "vscode://schemas/settings/user"
+      },
+      {
+        "fileMatch": "%APP_SETTINGS_HOME%/profiles/*/settings.json",
+        "url": "vscode://schemas/settings/profile"
+      },
+      {
+        "fileMatch": "%MACHINE_SETTINGS_HOME%/settings.json",
+        "url": "vscode://schemas/settings/machine"
+      },
+      {
+        "fileMatch": "%APP_WORKSPACES_HOME%/*/workspace.json",
+        "url": "vscode://schemas/workspaceConfig"
+      },
+      {
+        "fileMatch": "**/*.code-workspace",
+        "url": "vscode://schemas/workspaceConfig"
+      },
+      {
+        "fileMatch": "**/argv.json",
+        "url": "vscode://schemas/argv"
+      },
+      {
+        "fileMatch": "/.vscode/settings.json",
+        "url": "vscode://schemas/settings/folder"
+      },
+      {
+        "fileMatch": "/.vscode/launch.json",
+        "url": "vscode://schemas/launch"
+      },
+      {
+        "fileMatch": "/.vscode/tasks.json",
+        "url": "vscode://schemas/tasks"
+      },
+      {
+        "fileMatch": "/.vscode/mcp.json",
+        "url": "vscode://schemas/mcp"
+      },
+      {
+        "fileMatch": "%APP_SETTINGS_HOME%/tasks.json",
+        "url": "vscode://schemas/tasks"
+      },
+      {
+        "fileMatch": "%APP_SETTINGS_HOME%/snippets/*.json",
+        "url": "vscode://schemas/snippets"
+      },
+      {
+        "fileMatch": "%APP_SETTINGS_HOME%/prompts/*.toolsets.jsonc",
+        "url": "vscode://schemas/toolsets"
+      },
+      {
+        "fileMatch": "%APP_SETTINGS_HOME%/profiles/*/snippets/.json",
+        "url": "vscode://schemas/snippets"
+      },
+      {
+        "fileMatch": "%APP_SETTINGS_HOME%/sync/snippets/preview/*.json",
+        "url": "vscode://schemas/snippets"
+      },
+      {
+        "fileMatch": "**/*.code-snippets",
+        "url": "vscode://schemas/global-snippets"
+      },
+      {
+        "fileMatch": "/.vscode/extensions.json",
+        "url": "vscode://schemas/extensions"
+      },
+      {
+        "fileMatch": "devcontainer.json",
+        "url": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json"
+      },
+      {
+        "fileMatch": ".devcontainer.json",
+        "url": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json"
+      },
+      {
+        "fileMatch": "%APP_SETTINGS_HOME%/globalStorage/ms-vscode-remote.remote-containers/nameConfigs/*.json",
+        "url": "./schemas/attachContainer.schema.json"
+      },
+      {
+        "fileMatch": "%APP_SETTINGS_HOME%/globalStorage/ms-vscode-remote.remote-containers/imageConfigs/*.json",
+        "url": "./schemas/attachContainer.schema.json"
+      },
+      {
+        "fileMatch": "**/quality/*/product.json",
+        "url": "vscode://schemas/vscode-product"
+      }
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "22.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/vscode.git"
+  }
+}
