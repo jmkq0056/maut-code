@@ -12,7 +12,15 @@
 		"untrustedWorkspaces": { "supported": true },
 		"virtualWorkspaces": true
 	},
-	"devDependencies": { "@types/node": "22.x" },
+	"devDependencies": {
+		"@types/node": "22.x",
+		"@types/markdown-it": "^14.0.0"
+	},
+	"dependencies": {
+		"markdown-it": "^14.1.0",
+		"markdown-it-task-lists": "^2.1.1",
+		"markdown-it-anchor": "^9.0.0"
+	},
 	"contributes": {
 		"commands": [
 			{ "command": "maut.markdown.toggle", "title": "Toggle Markdown Preview / Source", "category": "Maut", "icon": "$(file-text)" }

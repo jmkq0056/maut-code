@@ -337,16 +337,27 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 		} catch { /* noop */ }
 	}
 
-	// If no terminal exists yet, start clsp in the panel.
-	if (vscode.window.terminals.length === 0) {
-		startClaudeInNewTerminal();
-	} else {
-		// Reuse an existing Maut Claude terminal if there is one
-		const existing = vscode.window.terminals.find(t => t.name.startsWith('Maut'));
-		if (existing) {
-			mautTerminal = existing;
-			existing.show(false);
-		}
+	// Smart auto-launch: if there's no Maut-active terminal AND the setting allows it,
+	// spawn a fresh clsp. Existing non-Maut terminals (zsh, etc.) are left alone — we don't
+	// hijack them; we just add a new Maut terminal alongside.
+	const cfg = vscode.workspace.getConfiguration('maut');
+	const autoLaunch = cfg.get<boolean>('autoLaunchClsp', true);
+	const autoFocus = cfg.get<boolean>('autoEnterFocusMode', false);
+
+	const existingMaut = vscode.window.terminals.find(t => /^\d+ -- MAUT$/.test(t.name) || t.name.startsWith('Maut'));
+	if (existingMaut) {
+		mautTerminal = existingMaut;
+		existingMaut.show(false);
+	} else if (autoLaunch) {
+		// Defer a tick so the workbench is fully restored before we spawn.
+		setTimeout(() => {
+			startClaudeInNewTerminal();
+			if (autoFocus) {
+				setTimeout(() => {
+					void vscode.commands.executeCommand('maut.focus.toggleTerminal').then(undefined, () => { /* noop */ });
+				}, 250);
+			}
+		}, 400);
 	}
 }
 

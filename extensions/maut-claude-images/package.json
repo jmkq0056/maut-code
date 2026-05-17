@@ -25,9 +25,9 @@
 		"commands": [
 			{
 				"command": "maut.chat.startClaude",
-				"title": "Start clsp Terminal",
+				"title": "Spawn New Maut Claude (clsp)",
 				"category": "Maut",
-				"icon": "$(play)"
+				"icon": "$(flame)"
 			},
 			{
 				"command": "maut.terminals.switch",
@@ -45,11 +45,31 @@
 			],
 			"view/title": [
 				{
+					"command": "maut.chat.startClaude",
+					"when": "view == terminal",
+					"group": "navigation@1"
+				},
+				{
 					"command": "maut.terminals.switch",
 					"when": "view == terminal",
 					"group": "navigation@98"
 				}
 			]
+		},
+		"configuration": {
+			"title": "Maut",
+			"properties": {
+				"maut.autoLaunchClsp": {
+					"type": "boolean",
+					"default": true,
+					"description": "On Maut code launch, automatically spawn a new clsp terminal if no Maut Claude session is already running."
+				},
+				"maut.autoEnterFocusMode": {
+					"type": "boolean",
+					"default": false,
+					"description": "After auto-launching clsp on app open, also enter Maut Focus Mode (zen-style)."
+				}
+			}
 		}
 	}
 }
