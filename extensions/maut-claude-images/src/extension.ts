@@ -11,7 +11,9 @@ import * as vscode from 'vscode';
 
 const IMAGE_CACHE_ROOT = path.join(os.homedir(), '.claude', 'image-cache');
 const IMAGE_EXTS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp'];
-const CLSP_COMMAND = 'clsp';
+// Use the full claude flag rather than the user's `clsp` alias so the app works on machines
+// where the alias isn't defined.
+const CLSP_COMMAND = 'claude --dangerously-skip-permissions';
 
 function getActiveSessionDir(): string | undefined {
 	try {
@@ -173,7 +175,7 @@ function makeMautName(n: number): string {
 	return `${n} -- MAUT`;
 }
 
-function startClaudeInNewTerminal(): vscode.Terminal {
+function startClaudeInNewTerminal(opts?: { autoResume?: boolean }): vscode.Terminal {
 	const n = nextNumber();
 	const icon = allocateIcon();
 	const color = allocateColor();
@@ -188,7 +190,10 @@ function startClaudeInNewTerminal(): vscode.Terminal {
 	});
 	mautTerminals.set(t, { number: n, state: 'active', icon, color });
 	t.show(false);
-	t.sendText(CLSP_COMMAND, true);
+	// `clsp --continue` (auto-resume of latest session) vs `clsp` (fresh). The shell alias
+	// passes args through to the underlying claude binary.
+	const cmd = opts?.autoResume ? `${CLSP_COMMAND} --continue` : CLSP_COMMAND;
+	t.sendText(cmd, true);
 	mautTerminal = t;
 	return t;
 }
@@ -343,15 +348,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	const cfg = vscode.workspace.getConfiguration('maut');
 	const autoLaunch = cfg.get<boolean>('autoLaunchClsp', true);
 	const autoFocus = cfg.get<boolean>('autoEnterFocusMode', false);
+	const autoResume = cfg.get<boolean>('autoResumeOnLaunch', true);
 
 	const existingMaut = vscode.window.terminals.find(t => /^\d+ -- MAUT$/.test(t.name) || t.name.startsWith('Maut'));
 	if (existingMaut) {
 		mautTerminal = existingMaut;
 		existingMaut.show(false);
 	} else if (autoLaunch) {
-		// Defer a tick so the workbench is fully restored before we spawn.
 		setTimeout(() => {
-			startClaudeInNewTerminal();
+			startClaudeInNewTerminal({ autoResume });
 			if (autoFocus) {
 				setTimeout(() => {
 					void vscode.commands.executeCommand('maut.focus.toggleTerminal').then(undefined, () => { /* noop */ });

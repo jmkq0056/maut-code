@@ -68,6 +68,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "After auto-launching clsp on app open, also enter Maut Focus Mode (zen-style)."
+				},
+				"maut.autoResumeOnLaunch": {
+					"type": "boolean",
+					"default": true,
+					"description": "After auto-launching clsp on app open, type `/resume` + Enter ~2s later to restore the last Claude conversation."
 				}
 			}
 		}
