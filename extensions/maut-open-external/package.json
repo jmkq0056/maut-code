@@ -7,7 +7,12 @@
 	"license": "MIT",
 	"engines": { "vscode": "^1.121.0" },
 	"main": "./out/extension",
-	"activationEvents": [ "onStartupFinished" ],
+	"activationEvents": [
+		"onStartupFinished",
+		"onCustomEditor:maut.openInWord",
+		"onCustomEditor:maut.openInExcel",
+		"onCustomEditor:maut.openInPowerPoint"
+	],
 	"capabilities": {
 		"untrustedWorkspaces": { "supported": true },
 		"virtualWorkspaces": false
@@ -49,6 +54,40 @@
 				"command": "maut.tex.compileAndOpenFirefox",
 				"title": "Compile (twice) and Open PDF in Firefox",
 				"category": "Maut"
+			}
+		],
+		"customEditors": [
+			{
+				"viewType": "maut.openInWord",
+				"displayName": "Maut · Open in Word",
+				"selector": [
+					{ "filenamePattern": "*.docx" },
+					{ "filenamePattern": "*.doc" },
+					{ "filenamePattern": "*.odt" },
+					{ "filenamePattern": "*.rtf" }
+				],
+				"priority": "default"
+			},
+			{
+				"viewType": "maut.openInExcel",
+				"displayName": "Maut · Open in Excel",
+				"selector": [
+					{ "filenamePattern": "*.xlsx" },
+					{ "filenamePattern": "*.xls" },
+					{ "filenamePattern": "*.ods" }
+				],
+				"priority": "default"
+			},
+			{
+				"viewType": "maut.openInPowerPoint",
+				"displayName": "Maut · Open in PowerPoint",
+				"selector": [
+					{ "filenamePattern": "*.pptx" },
+					{ "filenamePattern": "*.ppt" },
+					{ "filenamePattern": "*.odp" },
+					{ "filenamePattern": "*.key" }
+				],
+				"priority": "default"
 			}
 		],
 		"menus": {

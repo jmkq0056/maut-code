@@ -73,6 +73,36 @@ async function compileTexAndOpenInFirefox(arg: unknown): Promise<void> {
 	terminal.sendText(cmd, true);
 }
 
+class HandoffEditorProvider implements vscode.CustomReadonlyEditorProvider<vscode.CustomDocument> {
+	constructor(private readonly appName: string) { }
+
+	openCustomDocument(uri: vscode.Uri): vscode.CustomDocument {
+		return { uri, dispose() { /* noop */ } };
+	}
+
+	resolveCustomEditor(document: vscode.CustomDocument, panel: vscode.WebviewPanel): void {
+		const fileName = document.uri.path.split('/').pop() || 'file';
+		const app = this.appName;
+		panel.webview.html = `<!doctype html>
+<html><body style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:var(--vscode-editor-background);color:var(--vscode-foreground);font-family:var(--vscode-font-family);text-align:center">
+  <div>
+    <div style="font-size:13px;opacity:0.6;margin-bottom:8px">Maut</div>
+    <div style="font-size:15px;font-weight:600">Opening <code>${fileName}</code> in ${app}…</div>
+    <div style="font-size:11px;opacity:0.5;margin-top:16px">Closing this tab automatically.</div>
+  </div>
+</body></html>`;
+		try {
+			const child = spawn('open', ['-a', this.appName, document.uri.fsPath], { detached: true, stdio: 'ignore' });
+			child.on('error', () => vscode.window.showErrorMessage(`Failed to launch ${this.appName}.`));
+			child.unref();
+		} catch (err) {
+			vscode.window.showErrorMessage(`Failed to launch ${this.appName}: ${err}`);
+		}
+		// Close the placeholder tab shortly after handing off.
+		setTimeout(() => { try { panel.dispose(); } catch { /* noop */ } }, 600);
+	}
+}
+
 export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('maut.openIn.firefox', (arg) => openWith('Firefox', arg)),
@@ -82,6 +112,9 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand('maut.openIn.defaultApp', (arg) => openWith(undefined, arg)),
 		vscode.commands.registerCommand('maut.run.script', (arg) => runScript(arg)),
 		vscode.commands.registerCommand('maut.tex.compileAndOpenFirefox', (arg) => compileTexAndOpenInFirefox(arg)),
+		vscode.window.registerCustomEditorProvider('maut.openInWord', new HandoffEditorProvider('Microsoft Word'), { supportsMultipleEditorsPerDocument: true }),
+		vscode.window.registerCustomEditorProvider('maut.openInExcel', new HandoffEditorProvider('Microsoft Excel'), { supportsMultipleEditorsPerDocument: true }),
+		vscode.window.registerCustomEditorProvider('maut.openInPowerPoint', new HandoffEditorProvider('Microsoft PowerPoint'), { supportsMultipleEditorsPerDocument: true }),
 	);
 }
 
