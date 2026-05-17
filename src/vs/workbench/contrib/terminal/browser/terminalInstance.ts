@@ -2629,10 +2629,18 @@ class TerminalInstanceDragAndDropController extends Disposable implements dom.ID
 		}
 
 		this._dropOverlay.style.opacity = '1';
+		// Maut code: claim the drop so the editor-area drop target (which would otherwise
+		// open the file as an editor) doesn't fight us when the terminal lives in the editor.
+		e.preventDefault();
+		e.stopImmediatePropagation();
 	}
 
 	async onDrop(e: DragEvent) {
 		this._clearDropOverlay();
+		// Maut code: claim the drop event so the surrounding editor part doesn't also
+		// react to it (especially when the terminal is in editor area / focus mode).
+		e.preventDefault();
+		e.stopImmediatePropagation();
 
 		if (!e.dataTransfer) {
 			return;
