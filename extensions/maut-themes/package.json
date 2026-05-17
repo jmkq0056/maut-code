@@ -1,0 +1,29 @@
+{
+	"name": "maut-themes",
+	"displayName": "Maut Themes",
+	"description": "Dark + Light Maut palettes with a one-keystroke toggle.",
+	"version": "1.0.0",
+	"publisher": "maut",
+	"license": "MIT",
+	"engines": { "vscode": "^1.121.0" },
+	"main": "./out/extension",
+	"activationEvents": [ "onStartupFinished" ],
+	"capabilities": {
+		"untrustedWorkspaces": { "supported": true },
+		"virtualWorkspaces": true
+	},
+	"devDependencies": { "@types/node": "22.x" },
+	"contributes": {
+		"commands": [
+			{ "command": "maut.theme.toggle", "title": "Toggle Maut Light / Dark", "category": "Maut", "icon": "$(color-mode)" }
+		],
+		"keybindings": [
+			{ "command": "maut.theme.toggle", "key": "cmd+shift+l", "mac": "cmd+shift+l" }
+		],
+		"menus": {
+			"editor/title": [
+				{ "command": "maut.theme.toggle", "group": "navigation@5" }
+			]
+		}
+	}
+}

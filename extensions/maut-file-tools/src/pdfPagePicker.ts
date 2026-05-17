@@ -94,6 +94,8 @@ function renderHtml(webview: vscode.Webview, dataUrl: string, fileName: string):
 	</div>
 	<div class="spacer"></div>
 	<div class="actions">
+		<input id="range" type="text" placeholder="3-15, 20, 22-25" style="background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border, transparent); border-radius: 4px; padding: 4px 8px; font-family: var(--vscode-editor-font-family); font-size: 12px; min-width: 180px; outline: none;" />
+		<button class="secondary" id="applyRange">Apply</button>
 		<button class="secondary" id="all">All</button>
 		<button class="secondary" id="none">None</button>
 		<button id="extract" disabled>Add 0 pages to Maut CLI</button>
@@ -149,6 +151,38 @@ function renderHtml(webview: vscode.Webview, dataUrl: string, fileName: string):
 		cv.width = viewport.width; cv.height = viewport.height;
 		await page.render({ canvasContext: cv.getContext('2d'), viewport }).promise;
 	}
+
+	function parseRange(text, max) {
+		const out = new Set();
+		for (const part of text.split(/[,\s]+/).filter(Boolean)) {
+			const m = /^(\d+)\s*-\s*(\d+)$/.exec(part);
+			if (m) {
+				const a = Math.max(1, parseInt(m[1], 10));
+				const b = Math.min(max, parseInt(m[2], 10));
+				if (a <= b) { for (let i = a; i <= b; i++) { out.add(i); } }
+			} else if (/^\d+$/.test(part)) {
+				const n = parseInt(part, 10);
+				if (n >= 1 && n <= max) { out.add(n); }
+			}
+		}
+		return out;
+	}
+
+	function applyRange() {
+		const parsed = parseRange(document.getElementById('range').value, doc.numPages);
+		selected.clear();
+		grid.querySelectorAll('.thumb').forEach((node, idx) => {
+			const n = idx + 1;
+			if (parsed.has(n)) { selected.add(n); node.classList.add('selected'); }
+			else { node.classList.remove('selected'); }
+		});
+		updateExtract();
+	}
+
+	document.getElementById('applyRange').addEventListener('click', applyRange);
+	document.getElementById('range').addEventListener('keydown', (e) => {
+		if (e.key === 'Enter') { e.preventDefault(); applyRange(); }
+	});
 
 	allBtn.addEventListener('click', () => {
 		selected.clear();

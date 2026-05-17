@@ -1,0 +1,26 @@
+{
+	"name": "maut-server-launcher",
+	"displayName": "Maut Server Launcher",
+	"description": "Right-click a folder → Start Server. Detects Node, Python, Rust, Go, etc.",
+	"version": "1.0.0",
+	"publisher": "maut",
+	"license": "MIT",
+	"engines": { "vscode": "^1.121.0" },
+	"main": "./out/extension",
+	"activationEvents": [ "onStartupFinished" ],
+	"capabilities": {
+		"untrustedWorkspaces": { "supported": true },
+		"virtualWorkspaces": false
+	},
+	"devDependencies": { "@types/node": "22.x" },
+	"contributes": {
+		"commands": [
+			{ "command": "maut.server.start", "title": "Start Server", "category": "Maut", "icon": "$(play-circle)" }
+		],
+		"menus": {
+			"explorer/context": [
+				{ "command": "maut.server.start", "when": "explorerResourceIsFolder", "group": "navigation@8" }
+			]
+		}
+	}
+}

@@ -1,0 +1,39 @@
+{
+	"name": "maut-markdown-preview",
+	"displayName": "Maut Markdown Preview-by-Default",
+	"description": "Open .md files in the rendered preview by default. Editor button toggles to source.",
+	"version": "1.0.0",
+	"publisher": "maut",
+	"license": "MIT",
+	"engines": { "vscode": "^1.121.0" },
+	"main": "./out/extension",
+	"activationEvents": [ "onStartupFinished" ],
+	"capabilities": {
+		"untrustedWorkspaces": { "supported": true },
+		"virtualWorkspaces": true
+	},
+	"devDependencies": { "@types/node": "22.x" },
+	"contributes": {
+		"commands": [
+			{ "command": "maut.markdown.toggle", "title": "Toggle Markdown Preview / Source", "category": "Maut", "icon": "$(file-text)" }
+		],
+		"keybindings": [
+			{ "command": "maut.markdown.toggle", "key": "cmd+shift+v", "mac": "cmd+shift+v", "when": "editorLangId == markdown || activeWebviewPanelId == 'mainThreadWebview-markdown.preview'" }
+		],
+		"menus": {
+			"editor/title": [
+				{ "command": "maut.markdown.toggle", "when": "resourceExtname == .md || resourceExtname == .markdown", "group": "navigation@4" }
+			]
+		},
+		"configuration": {
+			"title": "Maut Markdown Preview",
+			"properties": {
+				"maut.markdown.previewByDefault": {
+					"type": "boolean",
+					"default": true,
+					"description": "Open Markdown files in the rendered preview by default. The toggle button (or ⇧⌘V) flips to source."
+				}
+			}
+		}
+	}
+}

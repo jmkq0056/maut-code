@@ -90,7 +90,6 @@ class ClaudeImageTerminalLinkProvider implements vscode.TerminalLinkProvider<vsc
 }
 
 let mautTerminal: vscode.Terminal | undefined;
-let claudeCounter = 0;
 
 interface MautTerminalInfo {
 	readonly number: number;
@@ -161,8 +160,13 @@ function isClaudeCommand(cmd: string): boolean {
 }
 
 function nextNumber(): number {
-	claudeCounter++;
-	return claudeCounter;
+	const used = new Set<number>();
+	for (const info of mautTerminals.values()) {
+		if (info.state === 'active') { used.add(info.number); }
+	}
+	let n = 1;
+	while (used.has(n)) { n++; }
+	return n;
 }
 
 function makeMautName(n: number): string {
@@ -233,7 +237,6 @@ function bindShellExecutionTracking(context: vscode.ExtensionContext): void {
 			if (!isClaudeCommand(cmd)) { return; }
 			let info = mautTerminals.get(e.terminal);
 			if (!info) {
-				// brand-new adoption
 				const n = nextNumber();
 				const icon = allocateIcon();
 				const color = allocateColor();
@@ -245,15 +248,17 @@ function bindShellExecutionTracking(context: vscode.ExtensionContext): void {
 					await vscode.commands.executeCommand('maut.terminal.setAppearance', { icon, color });
 				} catch { /* noop */ }
 			} else if (info.state === 'idle') {
-				// previously idle terminal — re-allocate fresh icon+color so it visibly becomes
-				// a live Maut session again.
+				// Previously CLOSED terminal → allocate fresh number + fresh appearance + rename.
+				const n = nextNumber();
 				const icon = allocateIcon();
 				const color = allocateColor();
+				(info as { number: number }).number = n;
 				info.icon = icon;
 				info.color = color;
 				info.state = 'active';
 				try {
 					e.terminal.show(false);
+					await vscode.commands.executeCommand('workbench.action.terminal.renameWithArg', { name: makeMautName(n) });
 					await vscode.commands.executeCommand('maut.terminal.setAppearance', { icon, color });
 				} catch { /* noop */ }
 			} else {
@@ -268,17 +273,36 @@ function bindShellExecutionTracking(context: vscode.ExtensionContext): void {
 			if (!isClaudeCommand(cmd)) { return; }
 			const info = mautTerminals.get(e.terminal);
 			if (!info || info.state === 'idle') { return; }
-			// Release the colorful slot back to the pool and mute the tab so the user can
-			// see at a glance which terminals have a live claude vs. dormant scrollback.
+			// Free the number + colorful slot, rename tab to CLOSED, mute the icon.
 			releaseAllocation(info);
 			info.state = 'idle';
 			info.icon = 'history';
 			info.color = 'terminal.ansiBlack';
 			try {
 				e.terminal.show(false);
+				await vscode.commands.executeCommand('workbench.action.terminal.renameWithArg', { name: 'CLOSED' });
 				await vscode.commands.executeCommand('maut.terminal.setAppearance', { icon: info.icon, color: info.color });
 			} catch { /* noop */ }
 		}));
+	}
+
+	// On extension activation, mark any restored "N -- MAUT" terminals as CLOSED until a
+	// shell-execution event proves them alive again.
+	void markRestoredTerminalsClosed();
+}
+
+async function markRestoredTerminalsClosed(): Promise<void> {
+	// Defer to give VS Code time to restore terminal tabs.
+	await new Promise(r => setTimeout(r, 1500));
+	for (const t of vscode.window.terminals) {
+		if (!/^\d+ -- MAUT$/.test(t.name)) { continue; }
+		if (mautTerminals.has(t)) { continue; }
+		try {
+			t.show(false);
+			await new Promise(r => setTimeout(r, 50));
+			await vscode.commands.executeCommand('workbench.action.terminal.renameWithArg', { name: 'CLOSED' });
+			await vscode.commands.executeCommand('maut.terminal.setAppearance', { icon: 'history', color: 'terminal.ansiBlack' });
+		} catch { /* noop */ }
 	}
 }
 
