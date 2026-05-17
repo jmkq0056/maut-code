@@ -120,18 +120,18 @@ function wrap(webview: vscode.Webview, themeClass: string, title: string, toc: s
 	--accent-hover: #e8465f;
 }
 .maut-dark {
-	--bg: #0c0c14;
+	--bg: #2a181c;
 	--fg: #f0f0f8;
 	--muted: #a8a8bb;
 	--subtle: #6868a0;
-	--border: #1a1a2e;
-	--code-bg: #101020;
-	--toc-bg: #0c0c14;
-	--toc-hover: #1a1a2e;
+	--border: #3a2026;
+	--code-bg: #1f1216;
+	--toc-bg: #2a181c;
+	--toc-hover: #3a2026;
 }
 .maut-light {
 	--bg: #fafaf5;
-	--fg: #1a1a2e;
+	--fg: #3a2026;
 	--muted: #6868a0;
 	--subtle: #9090a8;
 	--border: #e8e5dc;
