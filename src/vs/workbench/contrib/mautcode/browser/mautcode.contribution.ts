@@ -7,6 +7,7 @@ import './media/mautcode.css';
 import './mautExplorerInlineAdd.js';
 import './mautTerminalAppearance.js';
 import './mautTypeTrigger.js';
+import './mautTripleClickReveal.js';
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from '../../../common/contributions.js';
 import { IWorkbenchLayoutService, Parts } from '../../../services/layout/browser/layoutService.js';
