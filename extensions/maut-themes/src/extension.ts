@@ -54,7 +54,7 @@ const DEFAULT_DARK: Snapshot = {
 const DEFAULT_LIGHT: Snapshot = {
 	mode: 'light',
 	accent: '#c62a47',
-	tint: '#fafaf5',
+	tint: '#fbf6ec',
 	fontFamily: 'JetBrains Mono, Menlo, Monaco, monospace',
 	fontSize: 13,
 };
@@ -119,12 +119,17 @@ function buildPalette(snap: Snapshot): Record<string, string> {
 	const accent = snap.accent;
 	const accentHover = isLight ? darken(accent, 0.10) : lighten(accent, 0.10);
 
+	// Light mode needs MORE contrast and a subtle accent tint in the chrome surfaces,
+	// otherwise the whole UI degrades to "VS Code Light Modern with a red border" which
+	// is exactly what the user complained about. We mix a tiny amount of accent into
+	// chrome / surface so the sidebar / statusbar / titlebar carry a recognisable Maut
+	// flavour instead of being neutral cream.
 	const base = snap.tint;
-	const chrome = isLight ? darken(base, 0.045) : lighten(base, 0.035);
-	const chromeHi = isLight ? darken(base, 0.085) : lighten(base, 0.065);
-	const surface = isLight ? darken(base, 0.025) : lighten(base, 0.04);
-	const surfaceHi = isLight ? darken(base, 0.06) : lighten(base, 0.08);
-	const border = isLight ? darken(base, 0.10) : lighten(base, 0.10);
+	const chrome = isLight ? mix(darken(base, 0.05), accent, 0.04) : lighten(base, 0.04);
+	const chromeHi = isLight ? mix(darken(base, 0.10), accent, 0.05) : lighten(base, 0.07);
+	const surface = isLight ? darken(base, 0.03) : lighten(base, 0.04);
+	const surfaceHi = isLight ? darken(base, 0.07) : lighten(base, 0.08);
+	const border = isLight ? mix(darken(base, 0.12), accent, 0.08) : lighten(base, 0.12);
 
 	const fg = isLight ? '#1e1e22' : '#f0f0f8';
 	const fgMuted = isLight ? '#5a5a6a' : '#a8a8bb';
