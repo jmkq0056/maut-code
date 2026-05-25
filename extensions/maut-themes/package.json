@@ -2,27 +2,21 @@
 	"name": "maut-themes",
 	"displayName": "Maut Theme Studio",
 	"description": "Visual theme + font customiser with live preview, presets, save/load. Includes a polished light mode.",
-	"version": "1.2.0",
+	"version": "1.3.0",
 	"publisher": "maut",
 	"license": "MIT",
 	"engines": { "vscode": "^1.121.0" },
 	"main": "./out/extension",
-	"activationEvents": [ "onStartupFinished" ],
+	"activationEvents": [
+		"onStartupFinished",
+		"onView:maut.themeStudio"
+	],
 	"capabilities": {
 		"untrustedWorkspaces": { "supported": true },
 		"virtualWorkspaces": true
 	},
 	"devDependencies": { "@types/node": "22.x" },
 	"contributes": {
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "maut",
-					"title": "Maut",
-					"icon": "$(eye)"
-				}
-			]
-		},
 		"views": {
 			"maut": [
 				{

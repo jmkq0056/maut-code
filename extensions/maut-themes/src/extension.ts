@@ -530,8 +530,56 @@ class StudioViewProvider implements vscode.WebviewViewProvider {
 	}
 }
 
-function openStudio(): void {
-	void vscode.commands.executeCommand('maut.themeStudio.focus');
+async function openStudio(): Promise<void> {
+	// Reveal the Maut activity bar container, then focus our view inside it.
+	// The container id  maut  is owned by maut-activity; we just live in it.
+	await vscode.commands.executeCommand('workbench.view.extension.maut');
+	await vscode.commands.executeCommand('maut.themeStudio.focus');
+}
+
+function setupStatusBar(context: vscode.ExtensionContext): void {
+	const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 9_500);
+	item.command = 'maut.theme.studio';
+	item.text = '$(symbol-color)  Theme';
+	item.tooltip = 'Maut Theme Studio — colour, font, light/dark (Shift+Cmd+T)';
+	item.show();
+	context.subscriptions.push(item);
+}
+
+const FIRST_RUN_FLAG = 'maut.theme.welcomed';
+
+async function applyFirstRunDefaults(context: vscode.ExtensionContext): Promise<void> {
+	// On a truly fresh install (no STATE_KEY, no STATE_LEGACY), seed sensible defaults
+	// and apply them immediately so the user sees the JetBrains-flavoured Maut palette
+	// before they ever open the studio. Saves the "why does this still look like VS Code"
+	// confusion.
+	const hasState = context.globalState.get<ThemeState>(STATE_KEY);
+	const hasLegacy = context.globalState.get<Snapshot>(STATE_LEGACY);
+	if (hasState || hasLegacy) {
+		return;
+	}
+	const initial: ThemeState = {
+		active: 'dark',
+		light: DEFAULT_LIGHT,
+		dark: DEFAULT_DARK,
+	};
+	await saveState(context, initial);
+	await applySnapshot(initial.dark);
+}
+
+async function maybeWelcome(context: vscode.ExtensionContext): Promise<void> {
+	if (context.globalState.get<boolean>(FIRST_RUN_FLAG)) {
+		return;
+	}
+	await context.globalState.update(FIRST_RUN_FLAG, true);
+	const open = 'Open Theme Studio';
+	const pick = await vscode.window.showInformationMessage(
+		'Maut Theme Studio is in the Maut sidebar (eye icon, left). Customise light & dark independently — Shift+Cmd+L swaps between them.',
+		open,
+	);
+	if (pick === open) {
+		void openStudio();
+	}
 }
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -539,13 +587,21 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider('maut.themeStudio', provider),
 		vscode.commands.registerCommand('maut.theme.toggle', () => toggleMode(context)),
-		vscode.commands.registerCommand('maut.theme.studio', openStudio),
+		vscode.commands.registerCommand('maut.theme.studio', () => { void openStudio(); }),
 	);
+	setupStatusBar(context);
 
-	// On extension start, make sure the active snapshot is applied. This is what
-	// resurrects the user's saved theme after a reinstall or a settings.json wipe.
-	const state = loadState(context);
-	void applySnapshot(state[state.active]);
+	void (async () => {
+		await applyFirstRunDefaults(context);
+
+		// Re-apply the active snapshot every startup. This re-asserts our palette
+		// against any settings.json drift and re-sets the workbench font in case the
+		// workbench config-change listener missed it.
+		const state = loadState(context);
+		await applySnapshot(state[state.active]);
+
+		void maybeWelcome(context);
+	})();
 }
 
 export function deactivate(): void { /* noop */ }
