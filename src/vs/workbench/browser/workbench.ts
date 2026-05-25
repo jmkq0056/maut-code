@@ -232,6 +232,7 @@ export class Workbench extends Layout {
 
 		// Configuration changes
 		this._register(configurationService.onDidChangeConfiguration(e => this.updateFontAliasing(e, configurationService)));
+		this._register(configurationService.onDidChangeConfiguration(e => this.updateMautWorkbenchFont(e, configurationService)));
 
 		// Font Info
 		if (isNative) {
@@ -294,6 +295,26 @@ export class Workbench extends Layout {
 		}
 	}
 
+	private updateMautWorkbenchFont(e: IConfigurationChangeEvent | undefined, configurationService: IConfigurationService) {
+		if (e && !e.affectsConfiguration('maut.workbenchFontFamily') && !e.affectsConfiguration('maut.workbenchFontSize')) {
+			return;
+		}
+		const fontFamily = configurationService.getValue<string>('maut.workbenchFontFamily');
+		const fontSize = configurationService.getValue<number>('maut.workbenchFontSize');
+		if (typeof fontFamily === 'string' && fontFamily.length > 0) {
+			this.mainContainer.style.setProperty('--vscode-font-family', fontFamily);
+			this.mainContainer.style.setProperty('font-family', fontFamily);
+		} else {
+			this.mainContainer.style.removeProperty('--vscode-font-family');
+			this.mainContainer.style.removeProperty('font-family');
+		}
+		if (typeof fontSize === 'number' && fontSize > 0) {
+			this.mainContainer.style.setProperty('font-size', `${fontSize}px`);
+		} else {
+			this.mainContainer.style.removeProperty('font-size');
+		}
+	}
+
 	private restoreFontInfo(storageService: IStorageService, configurationService: IConfigurationService): void {
 		const storedFontInfoRaw = storageService.get('editorFontInfo', StorageScope.APPLICATION);
 		if (storedFontInfoRaw) {
@@ -338,6 +359,9 @@ export class Workbench extends Layout {
 
 		// Apply font aliasing
 		this.updateFontAliasing(undefined, configurationService);
+
+		// Apply Maut workbench font (UI chrome font override)
+		this.updateMautWorkbenchFont(undefined, configurationService);
 
 		// Warm up font cache information before building up too many dom elements
 		this.restoreFontInfo(storageService, configurationService);

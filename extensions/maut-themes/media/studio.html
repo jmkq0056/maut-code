@@ -6,8 +6,8 @@
 <title>Maut Theme Studio</title>
 <style>
   :root {
-    --bg: var(--vscode-editor-background);
-    --fg: var(--vscode-editor-foreground);
+    --bg: var(--vscode-sideBar-background);
+    --fg: var(--vscode-sideBar-foreground);
     --muted: var(--vscode-descriptionForeground);
     --card: var(--vscode-editorWidget-background);
     --border: var(--vscode-panel-border);
@@ -20,189 +20,204 @@
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; padding: 24px;
+    margin: 0; padding: 12px 10px 32px 10px;
     font-family: var(--vscode-font-family);
     color: var(--fg); background: var(--bg);
-    font-size: 13px; line-height: 1.5;
+    font-size: 12.5px; line-height: 1.45;
   }
-  h1 { font-size: 18px; margin: 0 0 4px 0; font-weight: 700; letter-spacing: -0.3px; }
-  .sub { color: var(--muted); margin: 0 0 24px 0; font-size: 12px; }
+  h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1.1px;
+       color: var(--muted); margin: 0 0 8px 0; font-weight: 600; }
+  .hr { border: 0; border-top: 1px solid var(--border); margin: 14px 0; }
 
-  .section { margin-bottom: 24px; }
-  .section-title {
-    text-transform: uppercase; letter-spacing: 1.2px;
-    font-size: 10.5px; font-weight: 600;
-    color: var(--muted); margin-bottom: 10px;
-  }
-
-  .mode-row { display: flex; gap: 8px; }
-  .mode-btn {
-    flex: 1;
-    padding: 10px 14px;
+  /* Mode tabs (Edit Light / Edit Dark) */
+  .tabs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+    background: var(--card); border-radius: 8px; padding: 3px; margin-bottom: 14px;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--card); color: var(--fg);
-    cursor: pointer;
-    font-size: 13px; font-weight: 600;
-    transition: all .15s;
   }
-  .mode-btn:hover { border-color: var(--accent); }
-  .mode-btn.active {
-    background: var(--btn-bg); color: var(--btn-fg);
-    border-color: var(--btn-bg);
+  .tab {
+    border: 0; border-radius: 6px;
+    background: transparent; color: var(--fg);
+    padding: 8px 6px; font-size: 12px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    position: relative;
   }
+  .tab:hover { background: rgba(127,127,127,0.10); }
+  .tab.editing { background: var(--btn-bg); color: var(--btn-fg); }
+  .tab .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: transparent;
+  }
+  .tab.active-mode .dot { background: #5fd47f; }
+  .tab .lbl { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
+  .tab .lbl small { font-size: 9.5px; font-weight: 500; opacity: 0.72; letter-spacing: 0.5px; }
 
+  /* Active mode banner */
+  .active-banner {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; margin-bottom: 12px; font-size: 11.5px;
+  }
+  .active-banner .pulse { width: 7px; height: 7px; border-radius: 50%; background: #5fd47f;
+    box-shadow: 0 0 0 0 #5fd47f; animation: pulse 2s infinite; flex-shrink: 0; }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(95,212,127,0.55); }
+    70% { box-shadow: 0 0 0 6px rgba(95,212,127,0); }
+    100% { box-shadow: 0 0 0 0 rgba(95,212,127,0); }
+  }
+  .active-banner .lbl { flex: 1; color: var(--muted); }
+  .active-banner .mode-name { color: var(--fg); font-weight: 600; }
+  .active-banner button {
+    border: 1px solid var(--border); background: transparent; color: var(--fg);
+    padding: 4px 9px; border-radius: 4px; font-size: 11px; cursor: pointer;
+  }
+  .active-banner button:hover { border-color: var(--accent); }
+
+  /* Section */
+  .section { margin-bottom: 14px; }
+
+  /* Presets */
   .preset-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 6px;
   }
   .preset {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 12px;
-    background: var(--card);
-    cursor: pointer;
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 7px 9px; background: var(--card);
+    cursor: pointer; display: flex; align-items: center; gap: 7px;
     transition: all .15s;
-    display: flex; align-items: center; gap: 10px;
   }
   .preset:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .preset .swatch {
-    width: 22px; height: 22px; border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.1);
-    flex-shrink: 0;
+  .preset .sw {
+    width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+    border: 1px solid rgba(127,127,127,0.2);
   }
-  .preset .name { font-size: 12px; font-weight: 500; }
+  .preset .name { font-size: 11px; font-weight: 500; line-height: 1.1; }
+  .preset .name small { color: var(--muted); font-size: 9.5px; display: block; font-weight: 500; }
 
-  .control { margin-bottom: 14px; }
+  /* Controls */
+  .control { margin-bottom: 10px; }
   .control label {
-    display: block;
-    font-size: 11.5px; color: var(--muted);
-    margin-bottom: 6px; font-weight: 500;
+    display: block; font-size: 11px; color: var(--muted);
+    margin-bottom: 4px; font-weight: 500;
   }
-  .control .row { display: flex; gap: 8px; align-items: center; }
+  .control .row { display: flex; gap: 6px; align-items: center; }
   input[type="color"] {
-    width: 56px; height: 36px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--card);
-    cursor: pointer;
-    padding: 2px;
+    width: 42px; height: 30px; border: 1px solid var(--border); border-radius: 5px;
+    background: var(--card); cursor: pointer; padding: 2px;
   }
   input[type="text"], select, input[type="number"] {
-    flex: 1;
-    padding: 8px 10px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    flex: 1; padding: 6px 8px; border: 1px solid var(--border); border-radius: 5px;
     background: var(--input-bg); color: var(--input-fg);
-    font-family: var(--vscode-font-family);
-    font-size: 13px;
+    font-family: var(--vscode-font-family); font-size: 12px;
   }
   input[type="text"]:focus, select:focus, input[type="number"]:focus {
     outline: none; border-color: var(--accent);
   }
-  input[type="range"] {
-    flex: 1;
-    accent-color: var(--btn-bg);
-  }
-  .size-val { width: 36px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .hex-readout { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: 12px; min-width: 70px; }
+  input[type="range"] { flex: 1; accent-color: var(--btn-bg); }
+  .hex { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: 11px; min-width: 60px; }
+  .size-val { min-width: 28px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 11px; }
 
+  /* Preview */
   .preview {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-top: 4px;
-    transition: all .2s ease;
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+    transition: all .2s; overflow: hidden;
   }
-  .preview .pv-title { font-size: 11.5px; color: var(--muted); margin-bottom: 8px; }
-  .preview .pv-body { font-family: var(--pv-font); font-size: var(--pv-size); }
+  .preview .pv-title { font-size: 10.5px; color: var(--muted); margin-bottom: 6px; }
+  .preview .pv-body { font-family: var(--pv-font); font-size: var(--pv-size); margin: 0; }
   .preview .pv-kw { color: var(--pv-accent); font-weight: 600; }
-  .preview .pv-str { color: var(--pv-fg); opacity: 0.85; }
+  .preview .pv-str { color: var(--pv-fg); opacity: 0.82; }
   .preview .pv-cm { color: var(--pv-muted); font-style: italic; }
   .preview .pv-btn {
-    display: inline-block; margin-top: 10px;
+    display: inline-block; margin-top: 8px;
     background: var(--pv-accent); color: white;
-    padding: 6px 14px; border-radius: 6px;
-    font-size: 12px; font-weight: 600;
+    padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
   }
 
-  .saved-list { display: flex; flex-direction: column; gap: 6px; }
+  /* Saved themes */
+  .saved-list { display: flex; flex-direction: column; gap: 4px; }
   .saved-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 12px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    display: flex; align-items: center; gap: 7px;
+    padding: 6px 8px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 5px;
   }
-  .saved-row .swatch { width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); }
-  .saved-row .nm { flex: 1; font-size: 12.5px; }
-  .saved-row .tags { color: var(--muted); font-size: 11px; }
+  .saved-row .sw { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; border: 1px solid rgba(127,127,127,0.2); }
+  .saved-row .nm { flex: 1; font-size: 11.5px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .saved-row .tags { color: var(--muted); font-size: 10px; }
   .saved-row button {
-    background: transparent; border: 1px solid var(--border);
-    color: var(--fg); padding: 4px 10px; border-radius: 4px;
-    font-size: 11px; cursor: pointer;
+    background: transparent; border: 1px solid var(--border); color: var(--fg);
+    padding: 3px 7px; border-radius: 3px; font-size: 10px; cursor: pointer;
   }
   .saved-row button:hover { border-color: var(--accent); }
   .saved-row button.del:hover { border-color: #e8465f; color: #e8465f; }
-  .saved-empty { color: var(--muted); font-size: 12px; font-style: italic; }
+  .saved-empty { color: var(--muted); font-size: 11px; font-style: italic; padding: 6px 4px; }
 
-  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  /* Action buttons */
+  .actions { display: flex; gap: 5px; flex-wrap: wrap; }
   .actions button {
-    background: var(--btn-bg); color: var(--btn-fg);
-    border: none;
-    padding: 8px 14px; border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px; font-weight: 600;
+    background: var(--btn-bg); color: var(--btn-fg); border: none;
+    padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: 600;
   }
   .actions button:hover { background: var(--btn-hover); }
   .actions button.ghost {
-    background: transparent; color: var(--fg);
-    border: 1px solid var(--border);
+    background: transparent; color: var(--fg); border: 1px solid var(--border);
   }
   .actions button.ghost:hover { border-color: var(--accent); }
 
-  hr { border: 0; border-top: 1px solid var(--border); margin: 24px 0; }
+  .save-row { display: flex; gap: 5px; }
+  .save-row input { flex: 1; }
+  .save-row button {
+    background: var(--btn-bg); color: var(--btn-fg); border: none;
+    padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: 600;
+  }
+  .save-row button:hover { background: var(--btn-hover); }
 </style>
 </head>
 <body>
 
-<h1>Theme Studio</h1>
-<p class="sub">Live preview. Every change applies instantly.</p>
+<div class="active-banner">
+  <span class="pulse"></span>
+  <span class="lbl">Active: <span class="mode-name" id="active-name">Dark</span></span>
+  <button id="swap-active" title="Switch active mode (same as Shift+Cmd+L)">Swap</button>
+</div>
 
-<div class="section">
-  <div class="section-title">Mode</div>
-  <div class="mode-row">
-    <button class="mode-btn" data-mode="dark"  id="m-dark">🌙  Dark</button>
-    <button class="mode-btn" data-mode="light" id="m-light">☀️  Light</button>
-  </div>
+<div class="tabs" id="tabs" role="tablist">
+  <button class="tab" id="tab-light" data-mode="light" role="tab">
+    <span class="dot"></span>
+    <span class="lbl">☀️ Light<small>EDIT</small></span>
+  </button>
+  <button class="tab" id="tab-dark" data-mode="dark" role="tab">
+    <span class="dot"></span>
+    <span class="lbl">🌙 Dark<small>EDIT</small></span>
+  </button>
 </div>
 
 <div class="section">
-  <div class="section-title">Presets</div>
+  <h2>Presets for <span id="editing-name">Dark</span></h2>
   <div class="preset-grid" id="presets"></div>
 </div>
 
 <div class="section">
-  <div class="section-title">Colors</div>
+  <h2>Colors</h2>
   <div class="control">
-    <label>Accent (buttons, cursor, highlights)</label>
+    <label>Accent — buttons, cursor, focus</label>
     <div class="row">
       <input type="color" id="accent">
-      <span class="hex-readout" id="accent-hex"></span>
+      <span class="hex" id="accent-hex"></span>
     </div>
   </div>
   <div class="control">
-    <label>Surface tone (window / editor background)</label>
+    <label>Surface tone — window background</label>
     <div class="row">
       <input type="color" id="tint">
-      <span class="hex-readout" id="tint-hex"></span>
+      <span class="hex" id="tint-hex"></span>
     </div>
   </div>
 </div>
 
 <div class="section">
-  <div class="section-title">Typography</div>
+  <h2>Typography (applies to whole UI)</h2>
   <div class="control">
     <label>Font family</label>
     <div class="row">
@@ -216,7 +231,7 @@
         <option value="'Source Code Pro', Menlo, monospace">Source Code Pro</option>
         <option value="'IBM Plex Mono', Menlo, monospace">IBM Plex Mono</option>
         <option value="Consolas, 'Courier New', monospace">Consolas</option>
-        <option value="'Courier New', Courier, monospace">Courier New</option>
+        <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">System UI (default)</option>
       </select>
     </div>
   </div>
@@ -230,10 +245,10 @@
 </div>
 
 <div class="section">
-  <div class="section-title">Preview</div>
+  <h2>Preview</h2>
   <div class="preview" id="preview">
     <div class="pv-title">~/hello.ts</div>
-    <pre class="pv-body" id="pv-body" style="margin:0;"><span class="pv-cm">// Maut</span>
+    <pre class="pv-body" id="pv-body"><span class="pv-cm">// Maut</span>
 <span class="pv-kw">function</span> greet(name: <span class="pv-kw">string</span>) {
   <span class="pv-kw">return</span> <span class="pv-str">`hello, ${name}`</span>;
 }</pre>
@@ -241,69 +256,92 @@
   </div>
 </div>
 
-<hr>
+<div class="actions" style="margin-top:8px;">
+  <button id="activate-this">Apply as active</button>
+  <button class="ghost" id="reset">Reset</button>
+</div>
+
+<hr class="hr">
 
 <div class="section">
-  <div class="section-title">Save current as named theme</div>
-  <div class="control">
-    <div class="row">
-      <input type="text" id="save-name" placeholder="e.g. ‘my warm dark’">
-      <button class="ghost" id="save-btn" style="background:var(--btn-bg);color:var(--btn-fg);border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:600;">Save</button>
-    </div>
+  <h2>Save current mode as…</h2>
+  <div class="save-row">
+    <input type="text" id="save-name" placeholder="my warm dark">
+    <button id="save-btn">Save</button>
   </div>
 </div>
 
 <div class="section">
-  <div class="section-title">Your saved themes</div>
+  <h2>Your saved themes</h2>
   <div class="saved-list" id="saved"></div>
 </div>
 
-<hr>
+<hr class="hr">
 
 <div class="actions">
-  <button class="ghost" id="reset">Reset to default</button>
-  <button class="ghost" id="export">Export JSON</button>
-  <button class="ghost" id="import">Import JSON…</button>
+  <button class="ghost" id="export">Export</button>
+  <button class="ghost" id="import">Import…</button>
 </div>
 
 <script>
   const vscode = acquireVsCodeApi();
+
   let state = null;
   let presets = [];
+  let named = [];
+  // The mode tab the user is currently EDITING in the studio
+  // (not necessarily the mode that's active in the workbench).
+  let editing = 'dark';
 
   const $ = (id) => document.getElementById(id);
 
-  function setControls(snap) {
+  function modeLabel(m) { return m === 'light' ? 'Light' : 'Dark'; }
+
+  function setEditingTab(mode) {
+    editing = mode;
+    $('tab-light').classList.toggle('editing', mode === 'light');
+    $('tab-dark').classList.toggle('editing', mode === 'dark');
+    $('editing-name').textContent = modeLabel(mode);
+    renderEditor();
+    renderPresets();
+  }
+
+  function markActiveTab(active) {
+    $('tab-light').classList.toggle('active-mode', active === 'light');
+    $('tab-dark').classList.toggle('active-mode', active === 'dark');
+    $('active-name').textContent = modeLabel(active);
+  }
+
+  function renderEditor() {
+    if (!state) { return; }
+    const snap = state[editing];
     $('accent').value = snap.accent;
     $('accent-hex').textContent = snap.accent;
     $('tint').value = snap.tint;
     $('tint-hex').textContent = snap.tint;
     $('font').value = snap.fontFamily;
-    $('size').value = snap.fontSize;
+    $('size').value = String(snap.fontSize);
     $('size-val').textContent = String(snap.fontSize);
-    $('m-dark').classList.toggle('active', snap.mode === 'dark');
-    $('m-light').classList.toggle('active', snap.mode === 'light');
     renderPreview(snap);
   }
 
   function renderPreview(snap) {
     const isLight = snap.mode === 'light';
-    const base = snap.tint;
-    const fg = isLight ? '#222226' : '#f0f0f8';
-    const muted = isLight ? '#6a6a78' : '#a8a8bb';
+    const fg = isLight ? '#1e1e22' : '#f0f0f8';
+    const muted = isLight ? '#5a5a6a' : '#a8a8bb';
     const pv = $('preview');
     pv.style.setProperty('--pv-accent', snap.accent);
     pv.style.setProperty('--pv-fg', fg);
     pv.style.setProperty('--pv-muted', muted);
     pv.style.setProperty('--pv-font', snap.fontFamily);
     pv.style.setProperty('--pv-size', snap.fontSize + 'px');
-    pv.style.background = base;
+    pv.style.background = snap.tint;
     pv.style.color = fg;
   }
 
   function readSnap() {
     return {
-      mode: $('m-light').classList.contains('active') ? 'light' : 'dark',
+      mode: editing,
       accent: $('accent').value,
       tint: $('tint').value,
       fontFamily: $('font').value,
@@ -311,47 +349,37 @@
     };
   }
 
-  function apply() {
-    state = readSnap();
-    setControls(state);
-    vscode.postMessage({ type: 'apply', snap: state });
-  }
-
-  function setMode(mode) {
-    state = readSnap();
-    state.mode = mode;
-    if (mode === 'light' && (state.tint === '#2a181c' || state.tint.startsWith('#1') || state.tint.startsWith('#2'))) {
-      state.tint = '#fafaf5';
-    } else if (mode === 'dark' && (state.tint.toLowerCase() === '#fafaf5' || state.tint.startsWith('#f') || state.tint.startsWith('#e'))) {
-      state.tint = '#2a181c';
-    }
-    setControls(state);
-    vscode.postMessage({ type: 'apply', snap: state });
+  function pushEdit() {
+    if (!state) { return; }
+    const snap = readSnap();
+    state[editing] = snap;
+    renderPreview(snap);
+    vscode.postMessage({ type: 'edit', mode: editing, snap });
   }
 
   function renderPresets() {
     const c = $('presets'); c.innerHTML = '';
-    for (const p of presets) {
+    const filtered = presets.filter(p => p.mode === editing);
+    for (const p of filtered) {
       const el = document.createElement('div');
       el.className = 'preset';
       el.innerHTML =
-        '<div class="swatch" style="background:linear-gradient(135deg,' + p.accent + ' 50%,' + p.tint + ' 50%)"></div>' +
-        '<div class="name">' + p.name + '</div>';
+        '<div class="sw" style="background:linear-gradient(135deg,' + p.accent + ' 50%,' + p.tint + ' 50%)"></div>' +
+        '<div class="name">' + p.name + '<small>' + p.mode + '</small></div>';
       el.onclick = () => {
-        state = { mode: p.mode, accent: p.accent, tint: p.tint, fontFamily: p.fontFamily, fontSize: p.fontSize };
-        setControls(state);
-        vscode.postMessage({ type: 'apply', snap: state });
+        const snap = { mode: editing, accent: p.accent, tint: p.tint, fontFamily: p.fontFamily, fontSize: p.fontSize };
+        vscode.postMessage({ type: 'preset', mode: editing, snap });
       };
       c.appendChild(el);
     }
   }
 
-  function renderSaved(named) {
+  function renderSaved() {
     const c = $('saved'); c.innerHTML = '';
     if (!named.length) {
       const e = document.createElement('div');
       e.className = 'saved-empty';
-      e.textContent = 'No saved themes yet. Customise the controls above, give it a name, hit Save.';
+      e.textContent = 'None yet. Tweak controls, name it, hit Save.';
       c.appendChild(e);
       return;
     }
@@ -359,14 +387,13 @@
       const row = document.createElement('div');
       row.className = 'saved-row';
       row.innerHTML =
-        '<div class="swatch" style="background:linear-gradient(135deg,' + t.accent + ' 50%,' + t.tint + ' 50%)"></div>' +
-        '<div class="nm">' + t.name + ' <span class="tags">· ' + t.mode + '</span></div>' +
+        '<div class="sw" style="background:linear-gradient(135deg,' + t.accent + ' 50%,' + t.tint + ' 50%)"></div>' +
+        '<div class="nm">' + escapeHtml(t.name) + '<span class="tags"> · ' + t.mode + '</span></div>' +
         '<button class="apply">Apply</button>' +
-        '<button class="del">Delete</button>';
+        '<button class="del">×</button>';
       row.querySelector('.apply').onclick = () => {
-        state = { mode: t.mode, accent: t.accent, tint: t.tint, fontFamily: t.fontFamily, fontSize: t.fontSize };
-        setControls(state);
-        vscode.postMessage({ type: 'apply', snap: state });
+        const snap = { mode: t.mode, accent: t.accent, tint: t.tint, fontFamily: t.fontFamily, fontSize: t.fontSize };
+        vscode.postMessage({ type: 'applyNamed', mode: t.mode, snap });
       };
       row.querySelector('.del').onclick = () => {
         vscode.postMessage({ type: 'deleteNamed', name: t.name });
@@ -375,12 +402,25 @@
     }
   }
 
-  $('accent').addEventListener('input', apply);
-  $('tint').addEventListener('input', apply);
-  $('font').addEventListener('change', apply);
-  $('size').addEventListener('input', () => { $('size-val').textContent = $('size').value; apply(); });
-  $('m-dark').onclick = () => setMode('dark');
-  $('m-light').onclick = () => setMode('light');
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  // wiring
+  $('accent').addEventListener('input', pushEdit);
+  $('tint').addEventListener('input', pushEdit);
+  $('font').addEventListener('change', pushEdit);
+  $('size').addEventListener('input', () => { $('size-val').textContent = $('size').value; pushEdit(); });
+  $('tab-light').onclick = () => setEditingTab('light');
+  $('tab-dark').onclick = () => setEditingTab('dark');
+
+  $('activate-this').onclick = () => {
+    vscode.postMessage({ type: 'activate', mode: editing });
+  };
+  $('swap-active').onclick = () => {
+    const next = (state && state.active === 'light') ? 'dark' : 'light';
+    vscode.postMessage({ type: 'activate', mode: next });
+  };
 
   $('save-btn').onclick = () => {
     const name = ($('save-name').value || '').trim();
@@ -389,9 +429,7 @@
     $('save-name').value = '';
   };
 
-  $('reset').onclick = () => {
-    vscode.postMessage({ type: 'reset', snap: readSnap() });
-  };
+  $('reset').onclick = () => vscode.postMessage({ type: 'reset', mode: editing });
   $('export').onclick = () => vscode.postMessage({ type: 'export' });
   $('import').onclick = () => {
     const txt = prompt('Paste theme JSON:');
@@ -401,11 +439,16 @@
   window.addEventListener('message', (ev) => {
     const m = ev.data;
     if (m.type === 'state') {
-      state = m.current;
-      presets = m.presets;
-      setControls(state);
-      renderPresets();
-      renderSaved(m.named || []);
+      state = m.state;
+      named = m.named || [];
+      presets = m.presets || [];
+      markActiveTab(state.active);
+      // First time we hear from the host, default to editing the active mode.
+      if (!editing || (editing !== 'light' && editing !== 'dark')) {
+        editing = state.active;
+      }
+      setEditingTab(editing);
+      renderSaved();
     }
   });
 </script>

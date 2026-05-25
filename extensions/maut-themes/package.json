@@ -2,7 +2,7 @@
 	"name": "maut-themes",
 	"displayName": "Maut Theme Studio",
 	"description": "Visual theme + font customiser with live preview, presets, save/load. Includes a polished light mode.",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"publisher": "maut",
 	"license": "MIT",
 	"engines": { "vscode": "^1.121.0" },
@@ -14,6 +14,26 @@
 	},
 	"devDependencies": { "@types/node": "22.x" },
 	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "maut",
+					"title": "Maut",
+					"icon": "$(eye)"
+				}
+			]
+		},
+		"views": {
+			"maut": [
+				{
+					"id": "maut.themeStudio",
+					"name": "Theme Studio",
+					"icon": "$(symbol-color)",
+					"contextualTitle": "Maut Theme Studio",
+					"type": "webview"
+				}
+			]
+		},
 		"commands": [
 			{ "command": "maut.theme.toggle", "title": "Toggle Maut Light / Dark", "category": "Maut", "icon": "$(color-mode)" },
 			{ "command": "maut.theme.studio", "title": "Open Theme Studio", "category": "Maut", "icon": "$(symbol-color)" }
@@ -26,6 +46,21 @@
 			"editor/title": [
 				{ "command": "maut.theme.toggle", "group": "navigation@5" }
 			]
+		},
+		"configuration": {
+			"title": "Maut",
+			"properties": {
+				"maut.workbenchFontFamily": {
+					"type": "string",
+					"default": "",
+					"description": "Override the workbench UI font family (sidebar, tabs, menus, palette). Empty string = use VS Code default. Set by the Maut Theme Studio when you pick a font."
+				},
+				"maut.workbenchFontSize": {
+					"type": "number",
+					"default": 0,
+					"description": "Override the workbench UI font size in pixels. 0 = use VS Code default. Set by the Maut Theme Studio when you pick a font size."
+				}
+			}
 		}
 	}
 }

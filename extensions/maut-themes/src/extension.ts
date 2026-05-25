@@ -6,15 +6,17 @@
 /*
  *  Maut Theme Studio: visual theme/font customiser.
  *
- *    - Status bar entry  ($(symbol-color)  Theme)  opens a webview panel.
- *    - The panel lets the user pick a mode (light/dark), an accent colour,
- *      a surface tint, a font and a font size. Every change writes to user
- *      settings immediately so the change is visible without re-opening the
- *      window.
- *    - 5 hand-tuned presets are shipped and applied with a single click.
- *    - Named user themes can be saved, recalled and deleted, and exported /
- *      imported as JSON.
- *    - The legacy  maut.theme.toggle  command (Shift+Cmd+L) is preserved.
+ *    - Lives as a sidebar view inside the Maut activity bar container,
+ *      next to Maut Activity. Open the Maut activity icon  →  Theme
+ *      Studio expands directly in the sidebar (no editor tab).
+ *    - The user configures TWO snapshots (light and dark) independently;
+ *      both are remembered. Pressing Shift+Cmd+L (or the editor toolbar
+ *      sun/moon button) flips the active mode and applies that mode's
+ *      saved snapshot — nothing is clobbered.
+ *    - Font choices are written to every documented font setting (editor,
+ *      terminal, debug console, scm, notebook, markdown preview, chat) and
+ *      ALSO to  maut.workbenchFontFamily / maut.workbenchFontSize, which
+ *      the workbench reads at startup to override the UI chrome font.
  */
 
 import * as fs from 'fs';
@@ -35,6 +37,12 @@ interface NamedSnapshot extends Snapshot {
 	name: string;
 }
 
+interface ThemeState {
+	active: Mode;
+	light: Snapshot;
+	dark: Snapshot;
+}
+
 const DEFAULT_DARK: Snapshot = {
 	mode: 'dark',
 	accent: '#c62a47',
@@ -49,6 +57,12 @@ const DEFAULT_LIGHT: Snapshot = {
 	tint: '#fafaf5',
 	fontFamily: 'JetBrains Mono, Menlo, Monaco, monospace',
 	fontSize: 13,
+};
+
+const DEFAULT_STATE: ThemeState = {
+	active: 'dark',
+	light: DEFAULT_LIGHT,
+	dark: DEFAULT_DARK,
 };
 
 const PRESETS: NamedSnapshot[] = [
@@ -298,15 +312,29 @@ function buildPalette(snap: Snapshot): Record<string, string> {
 	};
 }
 
-const STATE_CURRENT = 'maut.theme.current';
+const STATE_KEY = 'maut.theme.state';
 const STATE_NAMED = 'maut.theme.named';
+const STATE_LEGACY = 'maut.theme.current';
 
-function loadCurrent(context: vscode.ExtensionContext): Snapshot {
-	return context.globalState.get<Snapshot>(STATE_CURRENT) ?? DEFAULT_DARK;
+function loadState(context: vscode.ExtensionContext): ThemeState {
+	const existing = context.globalState.get<ThemeState>(STATE_KEY);
+	if (existing && existing.light && existing.dark) {
+		return existing;
+	}
+	const legacy = context.globalState.get<Snapshot>(STATE_LEGACY);
+	if (legacy) {
+		const fresh: ThemeState = {
+			active: legacy.mode,
+			light: legacy.mode === 'light' ? legacy : DEFAULT_LIGHT,
+			dark: legacy.mode === 'dark' ? legacy : DEFAULT_DARK,
+		};
+		return fresh;
+	}
+	return DEFAULT_STATE;
 }
 
-function saveCurrent(context: vscode.ExtensionContext, snap: Snapshot): Thenable<void> {
-	return context.globalState.update(STATE_CURRENT, snap);
+function saveState(context: vscode.ExtensionContext, state: ThemeState): Thenable<void> {
+	return context.globalState.update(STATE_KEY, state);
 }
 
 function loadNamed(context: vscode.ExtensionContext): NamedSnapshot[] {
@@ -323,131 +351,201 @@ async function applySnapshot(snap: Snapshot): Promise<void> {
 	const baseTheme = snap.mode === 'light' ? 'Default Light Modern' : 'Default Dark Modern';
 	await cfg.update('workbench.colorTheme', baseTheme, vscode.ConfigurationTarget.Global);
 	await cfg.update('workbench.colorCustomizations', colors, vscode.ConfigurationTarget.Global);
+
+	// Editor / terminal — primary code surfaces.
 	await cfg.update('editor.fontFamily', snap.fontFamily, vscode.ConfigurationTarget.Global);
 	await cfg.update('editor.fontSize', snap.fontSize, vscode.ConfigurationTarget.Global);
 	await cfg.update('terminal.integrated.fontFamily', snap.fontFamily, vscode.ConfigurationTarget.Global);
 	await cfg.update('terminal.integrated.fontSize', snap.fontSize, vscode.ConfigurationTarget.Global);
+
+	// Every other documented font setting — debug console, scm input, notebooks,
+	// markdown preview, chat input, etc. Best-effort: if a particular setting
+	// isn't registered in this build we just swallow the rejection.
+	const extras: [string, unknown][] = [
+		['debug.console.fontFamily', snap.fontFamily],
+		['debug.console.fontSize', snap.fontSize],
+		['scm.inputFontFamily', snap.fontFamily],
+		['scm.inputFontSize', snap.fontSize],
+		['notebook.output.fontFamily', snap.fontFamily],
+		['notebook.output.fontSize', snap.fontSize],
+		['markdown.preview.fontFamily', snap.fontFamily],
+		['markdown.preview.fontSize', snap.fontSize],
+		['chat.editor.fontFamily', snap.fontFamily],
+		['chat.editor.fontSize', snap.fontSize],
+		['markdown.preview.lineHeight', 1.6],
+		// Workbench UI chrome — picked up by our patched src/vs/workbench/browser/workbench.ts
+		// at startup AND on change. This is what gives the JetBrains feel — sidebar, tabs,
+		// menus, palette and status bar all switch to the chosen font.
+		['maut.workbenchFontFamily', snap.fontFamily],
+		['maut.workbenchFontSize', snap.fontSize],
+	];
+	for (const [k, v] of extras) {
+		try {
+			await cfg.update(k, v, vscode.ConfigurationTarget.Global);
+		} catch {
+			// setting not registered in this build — skip silently
+		}
+	}
 }
 
-async function legacyToggle(context: vscode.ExtensionContext): Promise<void> {
-	const current = loadCurrent(context);
-	const next: Snapshot = current.mode === 'light'
-		? { ...DEFAULT_DARK, accent: current.accent }
-		: { ...DEFAULT_LIGHT, accent: current.accent };
-	await applySnapshot(next);
-	await saveCurrent(context, next);
-	vscode.window.setStatusBarMessage(`Maut · ${next.mode === 'light' ? 'Light' : 'Dark'}`, 2000);
+async function activateMode(context: vscode.ExtensionContext, mode: Mode): Promise<void> {
+	const state = loadState(context);
+	state.active = mode;
+	await applySnapshot(state[mode]);
+	await saveState(context, state);
+	vscode.window.setStatusBarMessage(`Maut · ${mode === 'light' ? 'Light' : 'Dark'}`, 2000);
+	provider?.refresh();
 }
 
-let activePanel: vscode.WebviewPanel | undefined;
+async function toggleMode(context: vscode.ExtensionContext): Promise<void> {
+	const state = loadState(context);
+	const next: Mode = state.active === 'light' ? 'dark' : 'light';
+	await activateMode(context, next);
+}
+
+let provider: StudioViewProvider | undefined;
 
 interface StudioMessage {
 	type: string;
+	mode?: Mode;
 	snap?: Snapshot;
 	name?: string;
 	json?: string;
 }
 
-function openStudio(context: vscode.ExtensionContext): void {
-	if (activePanel) {
-		activePanel.reveal(vscode.ViewColumn.Beside);
-		return;
+class StudioViewProvider implements vscode.WebviewViewProvider {
+
+	private view: vscode.WebviewView | undefined;
+
+	constructor(private readonly context: vscode.ExtensionContext) { }
+
+	public resolveWebviewView(webviewView: vscode.WebviewView): void {
+		this.view = webviewView;
+		webviewView.webview.options = {
+			enableScripts: true,
+			localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'media'))],
+		};
+		const htmlPath = path.join(this.context.extensionPath, 'media', 'studio.html');
+		webviewView.webview.html = fs.readFileSync(htmlPath, 'utf8');
+		this.refresh();
+
+		webviewView.webview.onDidReceiveMessage(async (msg: StudioMessage) => {
+			switch (msg.type) {
+				case 'edit': {
+					if (!msg.mode || !msg.snap) { return; }
+					const state = loadState(this.context);
+					state[msg.mode] = { ...msg.snap, mode: msg.mode };
+					await saveState(this.context, state);
+					if (state.active === msg.mode) {
+						await applySnapshot(state[msg.mode]);
+					}
+					return;
+				}
+				case 'activate': {
+					if (!msg.mode) { return; }
+					await activateMode(this.context, msg.mode);
+					return;
+				}
+				case 'preset': {
+					if (!msg.snap || !msg.mode) { return; }
+					const state = loadState(this.context);
+					state[msg.mode] = { ...msg.snap, mode: msg.mode };
+					state.active = msg.mode;
+					await saveState(this.context, state);
+					await applySnapshot(state[msg.mode]);
+					this.refresh();
+					return;
+				}
+				case 'saveAs': {
+					if (!msg.snap || !msg.name) { return; }
+					const list = loadNamed(this.context).filter(t => t.name !== msg.name);
+					list.unshift({ ...msg.snap, name: msg.name });
+					await saveNamed(this.context, list);
+					this.refresh();
+					return;
+				}
+				case 'applyNamed': {
+					if (!msg.snap || !msg.mode) { return; }
+					const state = loadState(this.context);
+					state[msg.mode] = { ...msg.snap, mode: msg.mode };
+					state.active = msg.mode;
+					await saveState(this.context, state);
+					await applySnapshot(state[msg.mode]);
+					this.refresh();
+					return;
+				}
+				case 'deleteNamed': {
+					if (!msg.name) { return; }
+					const list = loadNamed(this.context).filter(t => t.name !== msg.name);
+					await saveNamed(this.context, list);
+					this.refresh();
+					return;
+				}
+				case 'export': {
+					const data = JSON.stringify({ state: loadState(this.context), named: loadNamed(this.context) }, null, 2);
+					const doc = await vscode.workspace.openTextDocument({ language: 'json', content: data });
+					await vscode.window.showTextDocument(doc, vscode.ViewColumn.Active);
+					return;
+				}
+				case 'import': {
+					if (!msg.json) { return; }
+					try {
+						const parsed = JSON.parse(msg.json) as { state?: ThemeState; named?: NamedSnapshot[] };
+						if (parsed.state) {
+							await saveState(this.context, parsed.state);
+							await applySnapshot(parsed.state[parsed.state.active]);
+						}
+						if (parsed.named) {
+							await saveNamed(this.context, parsed.named);
+						}
+						this.refresh();
+						vscode.window.showInformationMessage('Maut: theme imported.');
+					} catch (e) {
+						vscode.window.showErrorMessage(`Maut: import failed — ${e instanceof Error ? e.message : 'bad JSON'}`);
+					}
+					return;
+				}
+				case 'reset': {
+					if (!msg.mode) { return; }
+					const state = loadState(this.context);
+					state[msg.mode] = msg.mode === 'light' ? DEFAULT_LIGHT : DEFAULT_DARK;
+					await saveState(this.context, state);
+					if (state.active === msg.mode) {
+						await applySnapshot(state[msg.mode]);
+					}
+					this.refresh();
+					return;
+				}
+			}
+		});
 	}
-	const panel = vscode.window.createWebviewPanel(
-		'maut.themeStudio',
-		'Maut Theme Studio',
-		vscode.ViewColumn.Beside,
-		{ enableScripts: true, retainContextWhenHidden: true },
-	);
-	activePanel = panel;
-	panel.onDidDispose(() => { activePanel = undefined; });
 
-	const htmlPath = path.join(context.extensionPath, 'media', 'studio.html');
-	panel.webview.html = fs.readFileSync(htmlPath, 'utf8');
-
-	const post = () => {
-		panel.webview.postMessage({
+	public refresh(): void {
+		this.view?.webview.postMessage({
 			type: 'state',
-			current: loadCurrent(context),
-			named: loadNamed(context),
+			state: loadState(this.context),
+			named: loadNamed(this.context),
 			presets: PRESETS,
 		});
-	};
-	post();
-
-	panel.webview.onDidReceiveMessage(async (msg: StudioMessage) => {
-		switch (msg.type) {
-			case 'apply': {
-				if (!msg.snap) { return; }
-				await applySnapshot(msg.snap);
-				await saveCurrent(context, msg.snap);
-				return;
-			}
-			case 'saveAs': {
-				if (!msg.snap || !msg.name) { return; }
-				const list = loadNamed(context).filter(t => t.name !== msg.name);
-				list.unshift({ ...msg.snap, name: msg.name });
-				await saveNamed(context, list);
-				post();
-				return;
-			}
-			case 'deleteNamed': {
-				if (!msg.name) { return; }
-				const list = loadNamed(context).filter(t => t.name !== msg.name);
-				await saveNamed(context, list);
-				post();
-				return;
-			}
-			case 'export': {
-				const data = JSON.stringify({ current: loadCurrent(context), named: loadNamed(context) }, null, 2);
-				const doc = await vscode.workspace.openTextDocument({ language: 'json', content: data });
-				await vscode.window.showTextDocument(doc, vscode.ViewColumn.Active);
-				return;
-			}
-			case 'import': {
-				if (!msg.json) { return; }
-				try {
-					const parsed = JSON.parse(msg.json) as { current?: Snapshot; named?: NamedSnapshot[] };
-					if (parsed.current) {
-						await applySnapshot(parsed.current);
-						await saveCurrent(context, parsed.current);
-					}
-					if (parsed.named) {
-						await saveNamed(context, parsed.named);
-					}
-					post();
-					vscode.window.showInformationMessage('Maut: theme imported.');
-				} catch (e) {
-					vscode.window.showErrorMessage(`Maut: import failed — ${e instanceof Error ? e.message : 'bad JSON'}`);
-				}
-				return;
-			}
-			case 'reset': {
-				const fresh = msg.snap?.mode === 'light' ? DEFAULT_LIGHT : DEFAULT_DARK;
-				await applySnapshot(fresh);
-				await saveCurrent(context, fresh);
-				post();
-				return;
-			}
-		}
-	});
+	}
 }
 
-function setupStatusBar(context: vscode.ExtensionContext): void {
-	const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 9_500);
-	item.command = 'maut.theme.studio';
-	item.text = '$(symbol-color)  Theme';
-	item.tooltip = 'Maut Theme Studio — pick colour, font, mode';
-	item.show();
-	context.subscriptions.push(item);
+function openStudio(): void {
+	void vscode.commands.executeCommand('maut.themeStudio.focus');
 }
 
 export function activate(context: vscode.ExtensionContext): void {
+	provider = new StudioViewProvider(context);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('maut.theme.toggle', () => legacyToggle(context)),
-		vscode.commands.registerCommand('maut.theme.studio', () => openStudio(context)),
+		vscode.window.registerWebviewViewProvider('maut.themeStudio', provider),
+		vscode.commands.registerCommand('maut.theme.toggle', () => toggleMode(context)),
+		vscode.commands.registerCommand('maut.theme.studio', openStudio),
 	);
-	setupStatusBar(context);
+
+	// On extension start, make sure the active snapshot is applied. This is what
+	// resurrects the user's saved theme after a reinstall or a settings.json wipe.
+	const state = loadState(context);
+	void applySnapshot(state[state.active]);
 }
 
 export function deactivate(): void { /* noop */ }
