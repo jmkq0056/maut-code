@@ -119,17 +119,16 @@ function buildPalette(snap: Snapshot): Record<string, string> {
 	const accent = snap.accent;
 	const accentHover = isLight ? darken(accent, 0.10) : lighten(accent, 0.10);
 
-	// Light mode needs MORE contrast and a subtle accent tint in the chrome surfaces,
-	// otherwise the whole UI degrades to "VS Code Light Modern with a red border" which
-	// is exactly what the user complained about. We mix a tiny amount of accent into
-	// chrome / surface so the sidebar / statusbar / titlebar carry a recognisable Maut
-	// flavour instead of being neutral cream.
+	// Mix a tiny bit of accent into the chrome surfaces so light mode reads as
+	// "Maut light" rather than "VS Code Light with a red border". Keep it subtle
+	// (~2%) so the cream doesn't tip into pink. Borders carry slightly more accent
+	// so edges show the brand all the way through the UI.
 	const base = snap.tint;
-	const chrome = isLight ? mix(darken(base, 0.05), accent, 0.04) : lighten(base, 0.04);
-	const chromeHi = isLight ? mix(darken(base, 0.10), accent, 0.05) : lighten(base, 0.07);
+	const chrome = isLight ? mix(darken(base, 0.05), accent, 0.02) : lighten(base, 0.04);
+	const chromeHi = isLight ? mix(darken(base, 0.09), accent, 0.025) : lighten(base, 0.07);
 	const surface = isLight ? darken(base, 0.03) : lighten(base, 0.04);
 	const surfaceHi = isLight ? darken(base, 0.07) : lighten(base, 0.08);
-	const border = isLight ? mix(darken(base, 0.12), accent, 0.08) : lighten(base, 0.12);
+	const border = isLight ? mix(darken(base, 0.12), accent, 0.06) : lighten(base, 0.12);
 
 	const fg = isLight ? '#1e1e22' : '#f0f0f8';
 	const fgMuted = isLight ? '#5a5a6a' : '#a8a8bb';
@@ -189,9 +188,20 @@ function buildPalette(snap: Snapshot): Record<string, string> {
 		'activityBar.foreground': fg,
 		'activityBar.inactiveForeground': fgSubtle,
 		'activityBar.activeBorder': accent,
+		'activityBar.activeBackground': '#00000000',
 		'activityBar.border': border,
 		'activityBarBadge.background': accent,
 		'activityBarBadge.foreground': '#ffffff',
+
+		// The "Top" activity bar variant is what renders when the activity bar is
+		// positioned at the top or shows in a pane composite. Without explicit
+		// values the active-item bg falls back to weird values (a dark block in
+		// light mode). Force these to chrome so the active item blends with the bar.
+		'activityBarTop.background': chrome,
+		'activityBarTop.foreground': fg,
+		'activityBarTop.inactiveForeground': fgSubtle,
+		'activityBarTop.activeBackground': '#00000000',
+		'activityBarTop.activeBorder': accent,
 
 		'sideBar.background': chrome,
 		'sideBar.foreground': fgMuted,
