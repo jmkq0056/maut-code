@@ -41,6 +41,7 @@ export const dirs = [
 	'extensions/maut-file-tools',
 	'extensions/maut-focus',
 	'extensions/maut-git-commit',
+	'extensions/maut-git-fetch',
 	'extensions/maut-markdown-preview',
 	'extensions/maut-open-external',
 	'extensions/maut-server-launcher',

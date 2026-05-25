@@ -80,6 +80,7 @@ const compilations = [
 	'extensions/maut-file-tools/tsconfig.json',
 	'extensions/maut-focus/tsconfig.json',
 	'extensions/maut-git-commit/tsconfig.json',
+	'extensions/maut-git-fetch/tsconfig.json',
 	'extensions/maut-markdown-preview/tsconfig.json',
 	'extensions/maut-open-external/tsconfig.json',
 	'extensions/maut-server-launcher/tsconfig.json',

@@ -1,8 +1,8 @@
 {
 	"name": "maut-themes",
-	"displayName": "Maut Themes",
-	"description": "Dark + Light Maut palettes with a one-keystroke toggle.",
-	"version": "1.0.0",
+	"displayName": "Maut Theme Studio",
+	"description": "Visual theme + font customiser with live preview, presets, save/load. Includes a polished light mode.",
+	"version": "1.1.0",
 	"publisher": "maut",
 	"license": "MIT",
 	"engines": { "vscode": "^1.121.0" },
@@ -15,10 +15,12 @@
 	"devDependencies": { "@types/node": "22.x" },
 	"contributes": {
 		"commands": [
-			{ "command": "maut.theme.toggle", "title": "Toggle Maut Light / Dark", "category": "Maut", "icon": "$(color-mode)" }
+			{ "command": "maut.theme.toggle", "title": "Toggle Maut Light / Dark", "category": "Maut", "icon": "$(color-mode)" },
+			{ "command": "maut.theme.studio", "title": "Open Theme Studio", "category": "Maut", "icon": "$(symbol-color)" }
 		],
 		"keybindings": [
-			{ "command": "maut.theme.toggle", "key": "cmd+shift+l", "mac": "cmd+shift+l" }
+			{ "command": "maut.theme.toggle", "key": "cmd+shift+l", "mac": "cmd+shift+l" },
+			{ "command": "maut.theme.studio", "key": "cmd+shift+t", "mac": "cmd+shift+t" }
 		],
 		"menus": {
 			"editor/title": [

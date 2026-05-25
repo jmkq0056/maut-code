@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+<title>Maut Theme Studio</title>
+<style>
+  :root {
+    --bg: var(--vscode-editor-background);
+    --fg: var(--vscode-editor-foreground);
+    --muted: var(--vscode-descriptionForeground);
+    --card: var(--vscode-editorWidget-background);
+    --border: var(--vscode-panel-border);
+    --accent: var(--vscode-focusBorder);
+    --input-bg: var(--vscode-input-background);
+    --input-fg: var(--vscode-input-foreground);
+    --btn-bg: var(--vscode-button-background);
+    --btn-fg: var(--vscode-button-foreground);
+    --btn-hover: var(--vscode-button-hoverBackground);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: var(--vscode-font-family);
+    color: var(--fg); background: var(--bg);
+    font-size: 13px; line-height: 1.5;
+  }
+  h1 { font-size: 18px; margin: 0 0 4px 0; font-weight: 700; letter-spacing: -0.3px; }
+  .sub { color: var(--muted); margin: 0 0 24px 0; font-size: 12px; }
+
+  .section { margin-bottom: 24px; }
+  .section-title {
+    text-transform: uppercase; letter-spacing: 1.2px;
+    font-size: 10.5px; font-weight: 600;
+    color: var(--muted); margin-bottom: 10px;
+  }
+
+  .mode-row { display: flex; gap: 8px; }
+  .mode-btn {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card); color: var(--fg);
+    cursor: pointer;
+    font-size: 13px; font-weight: 600;
+    transition: all .15s;
+  }
+  .mode-btn:hover { border-color: var(--accent); }
+  .mode-btn.active {
+    background: var(--btn-bg); color: var(--btn-fg);
+    border-color: var(--btn-bg);
+  }
+
+  .preset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+  .preset {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: var(--card);
+    cursor: pointer;
+    transition: all .15s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .preset:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .preset .swatch {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+  }
+  .preset .name { font-size: 12px; font-weight: 500; }
+
+  .control { margin-bottom: 14px; }
+  .control label {
+    display: block;
+    font-size: 11.5px; color: var(--muted);
+    margin-bottom: 6px; font-weight: 500;
+  }
+  .control .row { display: flex; gap: 8px; align-items: center; }
+  input[type="color"] {
+    width: 56px; height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    cursor: pointer;
+    padding: 2px;
+  }
+  input[type="text"], select, input[type="number"] {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--input-bg); color: var(--input-fg);
+    font-family: var(--vscode-font-family);
+    font-size: 13px;
+  }
+  input[type="text"]:focus, select:focus, input[type="number"]:focus {
+    outline: none; border-color: var(--accent);
+  }
+  input[type="range"] {
+    flex: 1;
+    accent-color: var(--btn-bg);
+  }
+  .size-val { width: 36px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .hex-readout { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: 12px; min-width: 70px; }
+
+  .preview {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 4px;
+    transition: all .2s ease;
+  }
+  .preview .pv-title { font-size: 11.5px; color: var(--muted); margin-bottom: 8px; }
+  .preview .pv-body { font-family: var(--pv-font); font-size: var(--pv-size); }
+  .preview .pv-kw { color: var(--pv-accent); font-weight: 600; }
+  .preview .pv-str { color: var(--pv-fg); opacity: 0.85; }
+  .preview .pv-cm { color: var(--pv-muted); font-style: italic; }
+  .preview .pv-btn {
+    display: inline-block; margin-top: 10px;
+    background: var(--pv-accent); color: white;
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 12px; font-weight: 600;
+  }
+
+  .saved-list { display: flex; flex-direction: column; gap: 6px; }
+  .saved-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .saved-row .swatch { width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); }
+  .saved-row .nm { flex: 1; font-size: 12.5px; }
+  .saved-row .tags { color: var(--muted); font-size: 11px; }
+  .saved-row button {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--fg); padding: 4px 10px; border-radius: 4px;
+    font-size: 11px; cursor: pointer;
+  }
+  .saved-row button:hover { border-color: var(--accent); }
+  .saved-row button.del:hover { border-color: #e8465f; color: #e8465f; }
+  .saved-empty { color: var(--muted); font-size: 12px; font-style: italic; }
+
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .actions button {
+    background: var(--btn-bg); color: var(--btn-fg);
+    border: none;
+    padding: 8px 14px; border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px; font-weight: 600;
+  }
+  .actions button:hover { background: var(--btn-hover); }
+  .actions button.ghost {
+    background: transparent; color: var(--fg);
+    border: 1px solid var(--border);
+  }
+  .actions button.ghost:hover { border-color: var(--accent); }
+
+  hr { border: 0; border-top: 1px solid var(--border); margin: 24px 0; }
+</style>
+</head>
+<body>
+
+<h1>Theme Studio</h1>
+<p class="sub">Live preview. Every change applies instantly.</p>
+
+<div class="section">
+  <div class="section-title">Mode</div>
+  <div class="mode-row">
+    <button class="mode-btn" data-mode="dark"  id="m-dark">🌙  Dark</button>
+    <button class="mode-btn" data-mode="light" id="m-light">☀️  Light</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Presets</div>
+  <div class="preset-grid" id="presets"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">Colors</div>
+  <div class="control">
+    <label>Accent (buttons, cursor, highlights)</label>
+    <div class="row">
+      <input type="color" id="accent">
+      <span class="hex-readout" id="accent-hex"></span>
+    </div>
+  </div>
+  <div class="control">
+    <label>Surface tone (window / editor background)</label>
+    <div class="row">
+      <input type="color" id="tint">
+      <span class="hex-readout" id="tint-hex"></span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Typography</div>
+  <div class="control">
+    <label>Font family</label>
+    <div class="row">
+      <select id="font">
+        <option value="JetBrains Mono, Menlo, Monaco, monospace">JetBrains Mono</option>
+        <option value="Menlo, Monaco, 'Courier New', monospace">Menlo</option>
+        <option value="Monaco, Menlo, monospace">Monaco</option>
+        <option value="'SF Mono', Menlo, monospace">SF Mono</option>
+        <option value="'Fira Code', Menlo, monospace">Fira Code</option>
+        <option value="'Cascadia Code', Menlo, monospace">Cascadia Code</option>
+        <option value="'Source Code Pro', Menlo, monospace">Source Code Pro</option>
+        <option value="'IBM Plex Mono', Menlo, monospace">IBM Plex Mono</option>
+        <option value="Consolas, 'Courier New', monospace">Consolas</option>
+        <option value="'Courier New', Courier, monospace">Courier New</option>
+      </select>
+    </div>
+  </div>
+  <div class="control">
+    <label>Font size</label>
+    <div class="row">
+      <input type="range" id="size" min="10" max="22" step="1">
+      <span class="size-val" id="size-val">13</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Preview</div>
+  <div class="preview" id="preview">
+    <div class="pv-title">~/hello.ts</div>
+    <pre class="pv-body" id="pv-body" style="margin:0;"><span class="pv-cm">// Maut</span>
+<span class="pv-kw">function</span> greet(name: <span class="pv-kw">string</span>) {
+  <span class="pv-kw">return</span> <span class="pv-str">`hello, ${name}`</span>;
+}</pre>
+    <div class="pv-btn">Primary button</div>
+  </div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="section-title">Save current as named theme</div>
+  <div class="control">
+    <div class="row">
+      <input type="text" id="save-name" placeholder="e.g. ‘my warm dark’">
+      <button class="ghost" id="save-btn" style="background:var(--btn-bg);color:var(--btn-fg);border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:600;">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Your saved themes</div>
+  <div class="saved-list" id="saved"></div>
+</div>
+
+<hr>
+
+<div class="actions">
+  <button class="ghost" id="reset">Reset to default</button>
+  <button class="ghost" id="export">Export JSON</button>
+  <button class="ghost" id="import">Import JSON…</button>
+</div>
+
+<script>
+  const vscode = acquireVsCodeApi();
+  let state = null;
+  let presets = [];
+
+  const $ = (id) => document.getElementById(id);
+
+  function setControls(snap) {
+    $('accent').value = snap.accent;
+    $('accent-hex').textContent = snap.accent;
+    $('tint').value = snap.tint;
+    $('tint-hex').textContent = snap.tint;
+    $('font').value = snap.fontFamily;
+    $('size').value = snap.fontSize;
+    $('size-val').textContent = String(snap.fontSize);
+    $('m-dark').classList.toggle('active', snap.mode === 'dark');
+    $('m-light').classList.toggle('active', snap.mode === 'light');
+    renderPreview(snap);
+  }
+
+  function renderPreview(snap) {
+    const isLight = snap.mode === 'light';
+    const base = snap.tint;
+    const fg = isLight ? '#222226' : '#f0f0f8';
+    const muted = isLight ? '#6a6a78' : '#a8a8bb';
+    const pv = $('preview');
+    pv.style.setProperty('--pv-accent', snap.accent);
+    pv.style.setProperty('--pv-fg', fg);
+    pv.style.setProperty('--pv-muted', muted);
+    pv.style.setProperty('--pv-font', snap.fontFamily);
+    pv.style.setProperty('--pv-size', snap.fontSize + 'px');
+    pv.style.background = base;
+    pv.style.color = fg;
+  }
+
+  function readSnap() {
+    return {
+      mode: $('m-light').classList.contains('active') ? 'light' : 'dark',
+      accent: $('accent').value,
+      tint: $('tint').value,
+      fontFamily: $('font').value,
+      fontSize: parseInt($('size').value, 10) || 13,
+    };
+  }
+
+  function apply() {
+    state = readSnap();
+    setControls(state);
+    vscode.postMessage({ type: 'apply', snap: state });
+  }
+
+  function setMode(mode) {
+    state = readSnap();
+    state.mode = mode;
+    if (mode === 'light' && (state.tint === '#2a181c' || state.tint.startsWith('#1') || state.tint.startsWith('#2'))) {
+      state.tint = '#fafaf5';
+    } else if (mode === 'dark' && (state.tint.toLowerCase() === '#fafaf5' || state.tint.startsWith('#f') || state.tint.startsWith('#e'))) {
+      state.tint = '#2a181c';
+    }
+    setControls(state);
+    vscode.postMessage({ type: 'apply', snap: state });
+  }
+
+  function renderPresets() {
+    const c = $('presets'); c.innerHTML = '';
+    for (const p of presets) {
+      const el = document.createElement('div');
+      el.className = 'preset';
+      el.innerHTML =
+        '<div class="swatch" style="background:linear-gradient(135deg,' + p.accent + ' 50%,' + p.tint + ' 50%)"></div>' +
+        '<div class="name">' + p.name + '</div>';
+      el.onclick = () => {
+        state = { mode: p.mode, accent: p.accent, tint: p.tint, fontFamily: p.fontFamily, fontSize: p.fontSize };
+        setControls(state);
+        vscode.postMessage({ type: 'apply', snap: state });
+      };
+      c.appendChild(el);
+    }
+  }
+
+  function renderSaved(named) {
+    const c = $('saved'); c.innerHTML = '';
+    if (!named.length) {
+      const e = document.createElement('div');
+      e.className = 'saved-empty';
+      e.textContent = 'No saved themes yet. Customise the controls above, give it a name, hit Save.';
+      c.appendChild(e);
+      return;
+    }
+    for (const t of named) {
+      const row = document.createElement('div');
+      row.className = 'saved-row';
+      row.innerHTML =
+        '<div class="swatch" style="background:linear-gradient(135deg,' + t.accent + ' 50%,' + t.tint + ' 50%)"></div>' +
+        '<div class="nm">' + t.name + ' <span class="tags">· ' + t.mode + '</span></div>' +
+        '<button class="apply">Apply</button>' +
+        '<button class="del">Delete</button>';
+      row.querySelector('.apply').onclick = () => {
+        state = { mode: t.mode, accent: t.accent, tint: t.tint, fontFamily: t.fontFamily, fontSize: t.fontSize };
+        setControls(state);
+        vscode.postMessage({ type: 'apply', snap: state });
+      };
+      row.querySelector('.del').onclick = () => {
+        vscode.postMessage({ type: 'deleteNamed', name: t.name });
+      };
+      c.appendChild(row);
+    }
+  }
+
+  $('accent').addEventListener('input', apply);
+  $('tint').addEventListener('input', apply);
+  $('font').addEventListener('change', apply);
+  $('size').addEventListener('input', () => { $('size-val').textContent = $('size').value; apply(); });
+  $('m-dark').onclick = () => setMode('dark');
+  $('m-light').onclick = () => setMode('light');
+
+  $('save-btn').onclick = () => {
+    const name = ($('save-name').value || '').trim();
+    if (!name) { return; }
+    vscode.postMessage({ type: 'saveAs', name, snap: readSnap() });
+    $('save-name').value = '';
+  };
+
+  $('reset').onclick = () => {
+    vscode.postMessage({ type: 'reset', snap: readSnap() });
+  };
+  $('export').onclick = () => vscode.postMessage({ type: 'export' });
+  $('import').onclick = () => {
+    const txt = prompt('Paste theme JSON:');
+    if (txt) { vscode.postMessage({ type: 'import', json: txt }); }
+  };
+
+  window.addEventListener('message', (ev) => {
+    const m = ev.data;
+    if (m.type === 'state') {
+      state = m.current;
+      presets = m.presets;
+      setControls(state);
+      renderPresets();
+      renderSaved(m.named || []);
+    }
+  });
+</script>
+</body>
+</html>

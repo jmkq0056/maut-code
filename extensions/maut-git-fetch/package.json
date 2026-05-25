@@ -1,0 +1,26 @@
+{
+	"name": "maut-git-fetch",
+	"displayName": "Maut Git Fetch",
+	"description": "Bottom-bar fetch+pull button companion to the commit/push button. Picks remote → branch → fetches, then resolves conflicts via quick-pick (stash & pull / reset --hard / cancel).",
+	"version": "1.0.0",
+	"publisher": "maut",
+	"license": "MIT",
+	"engines": { "vscode": "^1.121.0" },
+	"main": "./out/extension",
+	"activationEvents": [ "onStartupFinished" ],
+	"capabilities": {
+		"untrustedWorkspaces": { "supported": true },
+		"virtualWorkspaces": false
+	},
+	"devDependencies": { "@types/node": "22.x" },
+	"contributes": {
+		"commands": [
+			{
+				"command": "maut.git.fetchAndPull",
+				"title": "Fetch + Pull (pick remote & branch)",
+				"category": "Maut",
+				"icon": "$(cloud-download)"
+			}
+		]
+	}
+}
