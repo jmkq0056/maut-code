@@ -304,8 +304,12 @@ async function main() {
 		await task();
 	}
 
-	// JS-only dirs run in parallel
-	const concurrency = Math.min(os.cpus().length, 8);
+	// JS-only dirs run in parallel. VSCODE_INSTALL_CONCURRENCY=1 serializes them:
+	// extensions/ and extensions/mermaid-chat-features mutate the same
+	// extensions/node_modules tree and race when run concurrently.
+	const concurrency = process.env['VSCODE_INSTALL_CONCURRENCY']
+		? Math.max(1, parseInt(process.env['VSCODE_INSTALL_CONCURRENCY'], 10) || 1)
+		: Math.min(os.cpus().length, 8);
 	log('.', `Running ${parallelTasks.length} npm installs with concurrency ${concurrency}...`);
 	await runWithConcurrency(parallelTasks, concurrency);
 
