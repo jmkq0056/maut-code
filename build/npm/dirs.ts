@@ -63,6 +63,7 @@ export const dirs = [
 	'extensions/vscode-api-tests',
 	'extensions/vscode-colorize-tests',
 	'extensions/vscode-colorize-perf-tests',
+	'extensions/vscode-icons-mac',
 	'extensions/vscode-test-resolver',
 	'remote',
 	'remote/web',
