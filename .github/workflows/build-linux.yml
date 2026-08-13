@@ -10,6 +10,9 @@ jobs:
     env:
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
       NODE_OPTIONS: --max-old-space-size=8192
+      # run npm lifecycle scripts serially — parallel sub-installs race over
+      # extensions/node_modules and delete @parcel/watcher mid-compile
+      npm_config_foreground_scripts: "true"
     steps:
       - uses: actions/checkout@v4
 
@@ -24,7 +27,7 @@ jobs:
             libx11-dev libxkbfile-dev libsecret-1-dev libkrb5-dev fakeroot rsync
 
       - name: Install npm dependencies
-        run: npm ci
+        run: npm ci || npm ci
 
       - name: Build linux-x64
         run: npm run gulp vscode-linux-x64
