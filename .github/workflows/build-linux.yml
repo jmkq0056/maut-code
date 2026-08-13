@@ -13,6 +13,9 @@ jobs:
       # serialize postinstall's sub-installs — extensions/ and
       # extensions/mermaid-chat-features race over extensions/node_modules
       VSCODE_INSTALL_CONCURRENCY: "1"
+      # builtin-extension downloads hit api.github.com — anonymous calls get
+      # rate-limited (403) on shared runner IPs
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
