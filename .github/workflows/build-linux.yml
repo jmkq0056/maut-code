@@ -13,6 +13,9 @@ jobs:
       # run npm lifecycle scripts serially — parallel sub-installs race over
       # extensions/node_modules and delete @parcel/watcher mid-compile
       npm_config_foreground_scripts: "true"
+      # use @parcel/watcher's prebuilt N-API binary instead of compiling it in
+      # extensions/node_modules — the compile is what loses the race above
+      npm_config_build_from_source: "false"
     steps:
       - uses: actions/checkout@v4
 
